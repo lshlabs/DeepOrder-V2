@@ -38,3 +38,6 @@ logs/
 #MCP
 .mcp_screenshot/
 .playwright-cli/
+AGENTS.md
+output
+docs

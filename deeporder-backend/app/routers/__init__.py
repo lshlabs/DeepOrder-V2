@@ -7,6 +7,7 @@ from app.routers.kds_my_tasks import router as kds_my_tasks_router
 from app.routers.kds_orders import router as kds_orders_router
 from app.routers.kds_staff import router as kds_staff_router
 from app.routers.kds_store import router as kds_store_router
+from app.routers.kds_support import router as kds_support_router
 from app.routers.order_status import router as order_status_router
 from app.routers.order_webhooks import router as order_webhooks_router
 
@@ -19,6 +20,7 @@ router.include_router(kds_orders_router)
 router.include_router(kds_store_router)
 router.include_router(kds_my_tasks_router)
 router.include_router(kds_staff_router)
+router.include_router(kds_support_router)
 router.include_router(order_status_router)
 
 __all__ = ["router"]

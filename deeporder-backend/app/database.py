@@ -68,3 +68,50 @@ def _bootstrap_sqlite_columns() -> None:
         for column_name, statement in column_statements.items():
             if column_name not in existing_columns:
                 connection.execute(text(statement))
+
+        if "kds_order_item_progress" in table_names:
+            existing_progress_columns = {
+                row[1]
+                for row in connection.execute(text("PRAGMA table_info(kds_order_item_progress)")).fetchall()
+            }
+            if "completed_quantity" not in existing_progress_columns:
+                connection.execute(
+                    text(
+                        "ALTER TABLE kds_order_item_progress "
+                        "ADD COLUMN completed_quantity INTEGER NOT NULL DEFAULT 0"
+                    )
+                )
+
+        if "orders" in table_names:
+            existing_order_columns = {
+                row[1] for row in connection.execute(text("PRAGMA table_info(orders)")).fetchall()
+            }
+            order_column_statements = {
+                "delivery_phone": "ALTER TABLE orders ADD COLUMN delivery_phone VARCHAR(32)",
+                "delivery_zip_no": "ALTER TABLE orders ADD COLUMN delivery_zip_no VARCHAR(16)",
+                "delivery_road_address": "ALTER TABLE orders ADD COLUMN delivery_road_address VARCHAR(255)",
+                "delivery_jibun_address": "ALTER TABLE orders ADD COLUMN delivery_jibun_address VARCHAR(255)",
+                "delivery_address_detail": "ALTER TABLE orders ADD COLUMN delivery_address_detail VARCHAR(255)",
+                "completed_at": "ALTER TABLE orders ADD COLUMN completed_at DATETIME",
+                "delivery_info_redacted_at": "ALTER TABLE orders ADD COLUMN delivery_info_redacted_at DATETIME",
+            }
+            for column_name, statement in order_column_statements.items():
+                if column_name not in existing_order_columns:
+                    connection.execute(text(statement))
+
+        if "support_messages" in table_names:
+            existing_support_message_columns = {
+                row[1] for row in connection.execute(text("PRAGMA table_info(support_messages)")).fetchall()
+            }
+            if "client_message_id" not in existing_support_message_columns:
+                connection.execute(text("ALTER TABLE support_messages ADD COLUMN client_message_id VARCHAR(64)"))
+            existing_indexes = {
+                row[1] for row in connection.execute(text("PRAGMA index_list(support_messages)")).fetchall()
+            }
+            if "uq_support_message_client_id" not in existing_indexes:
+                connection.execute(
+                    text(
+                        "CREATE UNIQUE INDEX uq_support_message_client_id "
+                        "ON support_messages (conversation_id, client_message_id)"
+                    )
+                )

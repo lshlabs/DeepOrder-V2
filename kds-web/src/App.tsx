@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 
-import { ApiError, apiGetCurrentUser, apiLogout, apiRefresh } from "./lib/api";
+import {
+  ApiError,
+  apiCloseSupportConversation,
+  apiGetCurrentSupportConversation,
+  apiGetCurrentUser,
+  apiLogout,
+  apiRefresh,
+} from "./lib/api";
 import { clearStoredTokens, loadStoredTokens, saveAccessToken, saveStoredTokens } from "./lib/auth";
+import { clearChatbotSession } from "./features/kds/support/hooks/useChatbotSession";
 import { AuthPage } from "./pages/AuthPage";
 import { KdsPage } from "./pages/KdsPage";
 import type { AuthResponse, AuthSession, CurrentUserResponse, RegisterResponse } from "./types";
@@ -13,7 +21,10 @@ export default function App() {
   const [bootError, setBootError] = useState<string | null>(null);
 
   useEffect(() => {
+    // bootstrapSession is intentionally called once on mount.
+    // Adding it to deps would cause re-render loops.
     void bootstrapSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function bootstrapSession() {
@@ -89,15 +100,20 @@ export default function App() {
   }
 
   async function handleLogout() {
+    const accessToken = session?.accessToken ?? loadStoredTokens().accessToken;
     const refreshToken = session?.refreshToken ?? loadStoredTokens().refreshToken;
     try {
+      if (accessToken) {
+        await closeActiveSupportConversationBestEffort(accessToken);
+      }
       if (refreshToken) {
         await apiLogout(refreshToken);
       }
     } catch {
-      // Logout should clear the local session even if revoke fails.
+      // Logout should clear the local session even if best-effort server cleanup fails.
     } finally {
       clearStoredTokens();
+      clearChatbotSession();
       setSession(null);
       setRegisteredPending(null);
     }
@@ -154,6 +170,17 @@ export default function App() {
   }
 
   return <KdsPage onLogout={handleLogout} onUnauthorized={reauthorize} session={session} />;
+}
+
+async function closeActiveSupportConversationBestEffort(accessToken: string) {
+  try {
+    const current = await apiGetCurrentSupportConversation(accessToken);
+    if (current) {
+      await apiCloseSupportConversation(accessToken, current.id);
+    }
+  } catch {
+    // Support close is best-effort and must not block logout.
+  }
 }
 
 function createSession(

@@ -1,5 +1,8 @@
 from datetime import datetime, timezone
 
+import pytest
+from fastapi import HTTPException
+
 from app.models import Order
 from app.normalization import NormalizedOrderEvent
 from app.adapters.mock_delivery import MockDeliveryAdapter
@@ -18,6 +21,11 @@ def sample_payload() -> dict:
             "orderNumber": "A-001",
             "customerRequest": "양상추 빼주세요.",
             "deliveryRequest": "문 앞에 놓아주세요.",
+            "deliveryPhone": "010-1234-5678",
+            "deliveryZipNo": "04524",
+            "deliveryRoadAddress": "서울 중구 세종대로 110",
+            "deliveryJibunAddress": "서울 중구 태평로1가 31",
+            "deliveryAddressDetail": "101호",
             "orderedAt": "2026-06-12T12:34:56+00:00",
             "createdAt": "1999-01-01T00:00:00+00:00",
             "updatedAt": "1998-01-01T00:00:00+00:00",
@@ -69,6 +77,11 @@ def test_mock_delivery_adapter_parses_normalized_event() -> None:
     assert normalized.source_order_number == "A-001"
     assert normalized.customer_request == "양상추 빼주세요."
     assert normalized.delivery_request == "문 앞에 놓아주세요."
+    assert normalized.delivery_phone == "010-1234-5678"
+    assert normalized.delivery_zip_no == "04524"
+    assert normalized.delivery_road_address == "서울 중구 세종대로 110"
+    assert normalized.delivery_jibun_address == "서울 중구 태평로1가 31"
+    assert normalized.delivery_address_detail == "101호"
     assert normalized.source_occurred_at == datetime(2026, 6, 12, 12, 34, 56, tzinfo=timezone.utc)
     assert normalized.raw_payload == sample_payload()
     assert normalized.raw_headers == headers
@@ -88,3 +101,87 @@ def test_mock_delivery_adapter_parses_normalized_event() -> None:
     assert item.options[1].group_name is None
     assert item.options[1].option_name == "치즈 추가"
     assert item.options[1].raw_option == "치즈 추가"
+
+
+def test_mock_delivery_adapter_parses_selected_options_only() -> None:
+    adapter = MockDeliveryAdapter()
+    payload = sample_payload()
+    item_payload = payload["order"]["items"][0]
+    item_payload.pop("options")
+    item_payload["selectedOptions"] = [
+        {
+            "groupName": "식사1",
+            "optionName": "짜장면",
+            "effect": "LINK_MENU",
+            "additionalPrice": 0,
+        },
+        {
+            "groupName": "식사2",
+            "optionName": "짬뽕",
+            "effect": "LINK_MENU",
+            "additionalPrice": 1000,
+        },
+    ]
+
+    normalized = adapter.parse_event({}, payload)
+    options = normalized.items[0].options
+
+    assert len(options) == 2
+    assert options[0].group_name == "식사1"
+    assert options[0].option_name == "짜장면"
+    assert options[0].additional_price == 0
+    assert options[0].model_extra["effect"] == "LINK_MENU"
+    assert options[1].group_name == "식사2"
+    assert options[1].option_name == "짬뽕"
+    assert options[1].additional_price == 1000
+
+
+def test_mock_delivery_adapter_preserves_options_and_selected_options_order_and_duplicates() -> None:
+    adapter = MockDeliveryAdapter()
+    payload = sample_payload()
+    item_payload = payload["order"]["items"][0]
+    item_payload["options"] = ["맵기: 보통", "맵기: 보통"]
+    item_payload["selectedOptions"] = [
+        {"groupName": "탕수육", "optionName": "소"},
+        {"groupName": "탕수육", "optionName": "소"},
+    ]
+
+    normalized = adapter.parse_event({}, payload)
+    options = normalized.items[0].options
+
+    assert [(option.group_name, option.option_name) for option in options] == [
+        ("맵기", "보통"),
+        ("맵기", "보통"),
+        ("탕수육", "소"),
+        ("탕수육", "소"),
+    ]
+
+
+def test_mock_delivery_adapter_rejects_non_array_selected_options() -> None:
+    adapter = MockDeliveryAdapter()
+    payload = sample_payload()
+    payload["order"]["items"][0]["selectedOptions"] = {"groupName": "맵기", "optionName": "보통"}
+
+    with pytest.raises(HTTPException) as exc_info:
+        adapter.parse_event({}, payload)
+
+    assert exc_info.value.status_code == 422
+    assert exc_info.value.detail == "Invalid mock delivery payload: item.selectedOptions must be an array."
+
+
+def test_mock_delivery_adapter_normalizes_blank_delivery_info_to_none() -> None:
+    adapter = MockDeliveryAdapter()
+    payload = sample_payload()
+    payload["order"]["deliveryPhone"] = " "
+    payload["order"]["deliveryZipNo"] = ""
+    payload["order"]["deliveryRoadAddress"] = " "
+    payload["order"]["deliveryJibunAddress"] = ""
+    payload["order"]["deliveryAddressDetail"] = " "
+
+    normalized = adapter.parse_event({}, payload)
+
+    assert normalized.delivery_phone is None
+    assert normalized.delivery_zip_no is None
+    assert normalized.delivery_road_address is None
+    assert normalized.delivery_jibun_address is None
+    assert normalized.delivery_address_detail is None

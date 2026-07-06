@@ -37,7 +37,7 @@ class MockDeliveryAdapter(PlatformAdapter):
         order_body = body.get("order")
         if not isinstance(order_body, dict):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Invalid mock delivery payload: order must be an object.",
             )
 
@@ -45,12 +45,17 @@ class MockDeliveryAdapter(PlatformAdapter):
         order_number = _optional_str(order_body.get("orderNumber"))
         customer_request = _optional_str(order_body.get("customerRequest"))
         delivery_request = _optional_str(order_body.get("deliveryRequest"))
+        delivery_phone = _optional_str(order_body.get("deliveryPhone"))
+        delivery_zip_no = _optional_str(order_body.get("deliveryZipNo"))
+        delivery_road_address = _optional_str(order_body.get("deliveryRoadAddress"))
+        delivery_jibun_address = _optional_str(order_body.get("deliveryJibunAddress"))
+        delivery_address_detail = _optional_str(order_body.get("deliveryAddressDetail"))
         occurred_at = _parse_datetime(order_body.get("orderedAt"))
 
         items_payload = order_body.get("items")
         if not isinstance(items_payload, list) or not items_payload:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Invalid mock delivery payload: order.items must be a non-empty array.",
             )
 
@@ -66,6 +71,11 @@ class MockDeliveryAdapter(PlatformAdapter):
             source_order_number=order_number,
             customer_request=customer_request,
             delivery_request=delivery_request,
+            delivery_phone=delivery_phone,
+            delivery_zip_no=delivery_zip_no,
+            delivery_road_address=delivery_road_address,
+            delivery_jibun_address=delivery_jibun_address,
+            delivery_address_detail=delivery_address_detail,
             items=items,
             raw_payload=body,
             raw_headers=headers or None,
@@ -75,23 +85,18 @@ class MockDeliveryAdapter(PlatformAdapter):
 def _parse_item(item: Any) -> NormalizedOrderItem:
     if not isinstance(item, dict):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Invalid mock delivery payload: order.items entries must be objects.",
         )
 
     quantity = item.get("quantity")
     if not isinstance(quantity, int) or quantity <= 0:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Invalid mock delivery payload: item.quantity must be a positive integer.",
         )
 
-    options_payload = item.get("options", [])
-    if not isinstance(options_payload, list):
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Invalid mock delivery payload: item.options must be an array.",
-        )
+    options_payload = _parse_option_payloads(item)
 
     return NormalizedOrderItem(
         external_line_id=_optional_str(item.get("itemId") or item.get("lineId")),
@@ -103,6 +108,24 @@ def _parse_item(item: Any) -> NormalizedOrderItem:
     )
 
 
+def _parse_option_payloads(item: dict[str, Any]) -> list[Any]:
+    options_payload = item.get("options", [])
+    selected_options_payload = item.get("selectedOptions", [])
+
+    if not isinstance(options_payload, list):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Invalid mock delivery payload: item.options must be an array.",
+        )
+    if not isinstance(selected_options_payload, list):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Invalid mock delivery payload: item.selectedOptions must be an array.",
+        )
+
+    return [*options_payload, *selected_options_payload]
+
+
 def _parse_option(option: Any) -> NormalizedOrderOption:
     if isinstance(option, dict):
         return NormalizedOrderOption(
@@ -110,13 +133,14 @@ def _parse_option(option: Any) -> NormalizedOrderOption:
             option_name=_require_str(option, "optionName"),
             option_type=_optional_str(option.get("optionType")),
             additional_price=_optional_non_negative_int(option.get("additionalPrice")),
+            effect=_optional_str(option.get("effect")),
             raw_option=option,
         )
 
     option_text = str(option).strip()
     if not option_text:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Invalid mock delivery payload: option text must not be empty.",
         )
 
@@ -139,7 +163,7 @@ def _require_str(payload: dict[str, Any], key: str) -> str:
     value = payload.get(key)
     if not isinstance(value, str) or not value.strip():
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=f"Invalid mock delivery payload: {key} must be a non-empty string.",
         )
     return value.strip()
@@ -159,7 +183,7 @@ def _optional_non_negative_int(value: Any) -> int | None:
         return None
     if not isinstance(value, int) or value < 0:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Invalid mock delivery payload: price fields must be non-negative integers.",
         )
     return value
@@ -170,13 +194,13 @@ def _parse_datetime(value: Any) -> datetime | None:
         return None
     if not isinstance(value, str) or not value.strip():
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Invalid mock delivery payload: orderedAt must be an ISO datetime string.",
         )
     try:
         return datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Invalid mock delivery payload: orderedAt must be an ISO datetime string.",
         ) from exc

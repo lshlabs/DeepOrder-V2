@@ -1,3 +1,5 @@
+import { localSupportSessionProvider } from "../features/kds/support/session/localSupportSessionProvider";
+
 const ACCESS_TOKEN_KEY = "deeporder.accessToken";
 const REFRESH_TOKEN_KEY = "deeporder.refreshToken";
 
@@ -30,6 +32,10 @@ export function loadStoredTokens(): StoredTokens {
   };
 }
 
+export function loadStoredAccessToken(): string | null {
+  return loadStoredTokens().accessToken;
+}
+
 export function saveStoredTokens(accessToken: string, refreshToken: string, persistent: boolean) {
   clearStoredTokens();
   const storage = persistent ? window.localStorage : window.sessionStorage;
@@ -49,4 +55,5 @@ export function clearStoredTokens() {
   window.localStorage.removeItem(REFRESH_TOKEN_KEY);
   window.sessionStorage.removeItem(ACCESS_TOKEN_KEY);
   window.sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+  localSupportSessionProvider.resetLocalCache?.();
 }

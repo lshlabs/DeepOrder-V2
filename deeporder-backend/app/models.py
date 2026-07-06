@@ -63,6 +63,42 @@ class StoreStatusSource(StrEnum):
     BREAKTIME = "BREAKTIME"
 
 
+class SupportConversationStatus(StrEnum):
+    BOT = "BOT"
+    AI = "AI"
+    WAITING_AGENT = "WAITING_AGENT"
+    AGENT = "AGENT"
+    CLOSED = "CLOSED"
+    EXPIRED = "EXPIRED"
+
+
+class SupportConversationMode(StrEnum):
+    BOT = "BOT"
+    AI = "AI"
+    AGENT = "AGENT"
+
+
+class SupportMessageSenderType(StrEnum):
+    USER = "USER"
+    BOT = "BOT"
+    AI = "AI"
+    AGENT = "AGENT"
+    SYSTEM = "SYSTEM"
+
+
+class SupportEventActorType(StrEnum):
+    USER = "USER"
+    AGENT = "AGENT"
+    SYSTEM = "SYSTEM"
+
+
+class SupportAgentAvailabilityStatus(StrEnum):
+    ONLINE = "ONLINE"
+    OFFLINE = "OFFLINE"
+    BUSY = "BUSY"
+    AWAY = "AWAY"
+
+
 class Store(Base):
     __tablename__ = "stores"
 
@@ -85,6 +121,9 @@ class Store(Base):
     )
 
     users: Mapped[list["User"]] = relationship(back_populates="store")
+    support_conversations: Mapped[list["SupportConversation"]] = relationship(
+        back_populates="store", cascade="all, delete-orphan", lazy="selectin"
+    )
 
 
 class WebhookEvent(Base):
@@ -116,6 +155,13 @@ class Order(Base):
     )
     customer_request: Mapped[str | None] = mapped_column(Text)
     delivery_request: Mapped[str | None] = mapped_column(Text)
+    delivery_phone: Mapped[str | None] = mapped_column(String(32))
+    delivery_zip_no: Mapped[str | None] = mapped_column(String(16))
+    delivery_road_address: Mapped[str | None] = mapped_column(String(255))
+    delivery_jibun_address: Mapped[str | None] = mapped_column(String(255))
+    delivery_address_detail: Mapped[str | None] = mapped_column(String(255))
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    delivery_info_redacted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     raw_payload: Mapped[dict] = mapped_column(JSON, nullable=False)
     ordered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
@@ -164,6 +210,17 @@ class User(Base):
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", lazy="selectin"
     )
+    support_conversations: Mapped[list["SupportConversation"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        foreign_keys="SupportConversation.user_id",
+        lazy="selectin",
+    )
+    assigned_support_conversations: Mapped[list["SupportConversation"]] = relationship(
+        back_populates="assigned_agent",
+        foreign_keys="SupportConversation.assigned_agent_id",
+        lazy="selectin",
+    )
 
 
 class OrderItem(Base):
@@ -193,6 +250,124 @@ class RefreshToken(Base):
     )
 
     user: Mapped[User] = relationship(back_populates="refresh_tokens")
+
+
+class SupportConversation(Base):
+    __tablename__ = "support_conversations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    store_id: Mapped[str] = mapped_column(ForeignKey("stores.store_id"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    status: Mapped[SupportConversationStatus] = mapped_column(
+        Enum(SupportConversationStatus),
+        default=SupportConversationStatus.BOT,
+        nullable=False,
+        index=True,
+    )
+    mode: Mapped[SupportConversationMode] = mapped_column(
+        Enum(SupportConversationMode),
+        default=SupportConversationMode.BOT,
+        nullable=False,
+        index=True,
+    )
+    assigned_agent_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True)
+    source: Mapped[str] = mapped_column(String(64), default="kds-web", nullable=False)
+    summary: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+    closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    store: Mapped[Store] = relationship(back_populates="support_conversations")
+    user: Mapped[User] = relationship(
+        back_populates="support_conversations",
+        foreign_keys=[user_id],
+    )
+    assigned_agent: Mapped[User | None] = relationship(
+        back_populates="assigned_support_conversations",
+        foreign_keys=[assigned_agent_id],
+    )
+    messages: Mapped[list["SupportMessage"]] = relationship(
+        back_populates="conversation",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+        order_by="SupportMessage.created_at, SupportMessage.id",
+    )
+
+
+class SupportMessage(Base):
+    __tablename__ = "support_messages"
+    __table_args__ = (
+        UniqueConstraint("conversation_id", "client_message_id", name="uq_support_message_client_id"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    conversation_id: Mapped[int] = mapped_column(
+        ForeignKey("support_conversations.id"), nullable=False, index=True
+    )
+    sender_type: Mapped[SupportMessageSenderType] = mapped_column(
+        Enum(SupportMessageSenderType), nullable=False, index=True
+    )
+    sender_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    metadata_json: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    client_message_id: Mapped[str | None] = mapped_column(String(64), index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    conversation: Mapped[SupportConversation] = relationship(back_populates="messages")
+    sender: Mapped[User | None] = relationship(foreign_keys=[sender_id])
+
+
+class SupportEvent(Base):
+    __tablename__ = "support_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    conversation_id: Mapped[int] = mapped_column(
+        ForeignKey("support_conversations.id"), nullable=False, index=True
+    )
+    event_type: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    payload_json: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    actor_type: Mapped[SupportEventActorType] = mapped_column(
+        Enum(SupportEventActorType), default=SupportEventActorType.USER, nullable=False, index=True
+    )
+    actor_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    conversation: Mapped[SupportConversation] = relationship()
+    actor: Mapped[User | None] = relationship(foreign_keys=[actor_id])
+
+
+class SupportAgentStatus(Base):
+    __tablename__ = "support_agent_status"
+    __table_args__ = (
+        UniqueConstraint("agent_id", "store_id", name="uq_support_agent_status_agent_store"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    agent_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    store_id: Mapped[str] = mapped_column(ForeignKey("stores.store_id"), nullable=False, index=True)
+    status: Mapped[SupportAgentAvailabilityStatus] = mapped_column(
+        Enum(SupportAgentAvailabilityStatus),
+        default=SupportAgentAvailabilityStatus.OFFLINE,
+        nullable=False,
+        index=True,
+    )
+    max_active_conversations: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    agent: Mapped[User] = relationship(foreign_keys=[agent_id])
+    store: Mapped[Store] = relationship()
 
 
 class OrderAIAnalysis(Base):
@@ -297,7 +472,34 @@ class KdsOrderItemProgress(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     order_item_id: Mapped[int] = mapped_column(ForeignKey("order_items.id"), nullable=False, index=True)
     store_id: Mapped[str] = mapped_column(ForeignKey("stores.store_id"), nullable=False, index=True)
+    completed_quantity: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     done: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    done_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    done_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+
+class KdsOrderItemOptionProgress(Base):
+    __tablename__ = "kds_order_item_option_progress"
+    __table_args__ = (
+        UniqueConstraint(
+            "order_item_id",
+            "store_id",
+            "option_index",
+            name="uq_kds_item_option_progress_item_store_index",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    order_item_id: Mapped[int] = mapped_column(ForeignKey("order_items.id"), nullable=False, index=True)
+    store_id: Mapped[str] = mapped_column(ForeignKey("stores.store_id"), nullable=False, index=True)
+    option_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    completed_quantity: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     done_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     done_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True)
     created_at: Mapped[datetime] = mapped_column(

@@ -38,6 +38,11 @@ class NormalizedOrderEvent(BaseModel):
     source_order_number: str | None = None
     customer_request: str | None = None
     delivery_request: str | None = None
+    delivery_phone: str | None = None
+    delivery_zip_no: str | None = None
+    delivery_road_address: str | None = None
+    delivery_jibun_address: str | None = None
+    delivery_address_detail: str | None = None
     order_channel: str | None = None
     fulfillment_type: str | None = None
     currency: str | None = None

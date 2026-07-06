@@ -29,6 +29,11 @@ def sample_event(
         source_order_number="A-001",
         customer_request="양상추 빼주세요.",
         delivery_request="문 앞에 놓아주세요.",
+        delivery_phone="010-1234-5678",
+        delivery_zip_no="04524",
+        delivery_road_address="서울 중구 세종대로 110",
+        delivery_jibun_address="서울 중구 태평로1가 31",
+        delivery_address_detail="101호",
         items=[
             NormalizedOrderItem(
                 external_line_id="external-line-001",
@@ -80,6 +85,11 @@ def test_ingest_order_event_creates_order_items_and_ai_analysis() -> None:
         assert order.id != order.external_order_id
         assert order.status == OrderStatus.NEW
         assert order.external_order_id == "order_ingestion_001"
+        assert order.delivery_phone == "010-1234-5678"
+        assert order.delivery_zip_no == "04524"
+        assert order.delivery_road_address == "서울 중구 세종대로 110"
+        assert order.delivery_jibun_address == "서울 중구 태평로1가 31"
+        assert order.delivery_address_detail == "101호"
         assert order.ordered_at is not None and order.ordered_at.year == 2026
         assert order.created_at.year != 1997
         assert order.updated_at.year != 1996

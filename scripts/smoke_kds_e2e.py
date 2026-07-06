@@ -46,7 +46,7 @@ def main() -> int:
     print(f"registered owner: user_id={owner['user']['id']} store_id={owner['store']['storeId']}")
     approve_user(owner["user"]["id"])
 
-    session = login_user(owner["credentials"]["email"], owner["credentials"]["password"])
+    session = login_user(owner["credentials"]["loginId"], owner["credentials"]["password"])
     print("login ok")
 
     me = get_current_user(session["accessToken"])
@@ -80,7 +80,7 @@ def main() -> int:
 
     intruder = register_user("smoke-intruder")
     approve_user(intruder["user"]["id"])
-    intruder_session = login_user(intruder["credentials"]["email"], intruder["credentials"]["password"])
+    intruder_session = login_user(intruder["credentials"]["loginId"], intruder["credentials"]["password"])
     verify_unauthorized_store_access(intruder_session["accessToken"], backend_order_id, order_id)
     print("unauthorized store/status access blocked")
 
@@ -136,6 +136,7 @@ def register_user(prefix: str) -> dict[str, Any]:
     password = "password1234"
     payload = {
         "name": f"{prefix}-{suffix}",
+        "loginId": f"{prefix}-{suffix}",
         "email": email,
         "password": password,
         "storeName": f"{prefix}-store-{suffix}",
@@ -145,10 +146,11 @@ def register_user(prefix: str) -> dict[str, Any]:
         "jibunAddress": "서울시 테스트동 1-1",
         "addressDetail": "101호",
     }
+    login_id = payload["loginId"]
     registered = post_json(f"{DEEPORDER_API_BASE}/api/auth/register", payload)
     return {
         **registered,
-        "credentials": {"email": email, "password": password},
+        "credentials": {"loginId": login_id, "password": password},
     }
 
 
@@ -160,10 +162,10 @@ def approve_user(user_id: int) -> None:
     )
 
 
-def login_user(email: str, password: str) -> dict[str, Any]:
+def login_user(login_id: str, password: str) -> dict[str, Any]:
     return post_json(
         f"{DEEPORDER_API_BASE}/api/auth/login",
-        {"email": email, "password": password},
+        {"loginId": login_id, "password": password},
     )
 
 

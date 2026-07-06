@@ -100,6 +100,12 @@ export interface GeneratedOrder {
   storeName: string
   createdAt: string
   generatedBy: string
+  customerRequest?: string | null
+  deliveryPhone: string | null
+  deliveryZipNo: string | null
+  deliveryRoadAddress: string | null
+  deliveryJibunAddress: string | null
+  deliveryAddressDetail: string | null
   items: GeneratedOrderItem[]
   totalPrice: number
 }

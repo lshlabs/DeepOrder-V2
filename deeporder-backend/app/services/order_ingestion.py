@@ -134,6 +134,11 @@ def _build_order(event: NormalizedOrderEvent) -> Order:
         status=OrderStatus.NEW,
         customer_request=event.customer_request,
         delivery_request=event.delivery_request,
+        delivery_phone=event.delivery_phone,
+        delivery_zip_no=event.delivery_zip_no,
+        delivery_road_address=event.delivery_road_address,
+        delivery_jibun_address=event.delivery_jibun_address,
+        delivery_address_detail=event.delivery_address_detail,
         ordered_at=event.source_occurred_at,
         raw_payload=event.raw_payload,
     )

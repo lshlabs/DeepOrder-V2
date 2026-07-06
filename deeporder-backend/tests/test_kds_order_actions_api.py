@@ -1,10 +1,4 @@
-from pathlib import Path
-
 from fastapi.testclient import TestClient
-
-db_path = Path("deeporder.db")
-if db_path.exists():
-    db_path.unlink()
 
 from app.config import get_settings  # noqa: E402
 from app.database import Base, engine  # noqa: E402
@@ -25,7 +19,14 @@ def register_payload(login_id: str, store_name: str) -> dict:
     }
 
 
-def sample_payload(*, event_id: str, order_id: str, store_id: str, order_number: str) -> dict:
+def sample_payload(
+    *,
+    event_id: str,
+    order_id: str,
+    store_id: str,
+    order_number: str,
+    quantity: int = 1,
+) -> dict:
     return {
         "eventId": event_id,
         "eventType": "ORDER_CREATED",
@@ -39,10 +40,10 @@ def sample_payload(*, event_id: str, order_id: str, store_id: str, order_number:
             "items": [
                 {
                     "name": "후라이드치킨",
-                    "quantity": 1,
+                    "quantity": quantity,
                     "options": ["콜라 추가"],
                     "unitPrice": 18000,
-                    "totalPrice": 18000,
+                    "totalPrice": 18000 * quantity,
                 }
             ],
         },
@@ -102,7 +103,17 @@ def test_order_hide_archive_and_item_progress_persist_in_kds_orders() -> None:
         item = order["items"][0]
         assert order["hidden"] is False
         assert order["archived"] is False
+        assert order["deliveryPhone"] is None
+        assert order["deliveryZipNo"] is None
+        assert order["deliveryRoadAddress"] is None
+        assert order["deliveryJibunAddress"] is None
+        assert order["deliveryAddressDetail"] is None
         assert item["done"] is False
+        assert item["targetQuantity"] == 1
+        assert item["completedQuantity"] == 0
+        assert item["options"][0]["label"] == "콜라 추가"
+        assert item["options"][0]["targetQuantity"] == 1
+        assert item["options"][0]["completedQuantity"] == 0
 
         progress = client.patch(
             f"/api/kds/order-items/{item['id']}/progress",
@@ -111,12 +122,17 @@ def test_order_hide_archive_and_item_progress_persist_in_kds_orders() -> None:
         )
         assert progress.status_code == 200
         assert progress.json()["done"] is True
+        assert progress.json()["targetQuantity"] == 1
+        assert progress.json()["completedQuantity"] == 1
         assert progress.json()["doneAt"] is not None
 
         orders_after_progress = client.get("/api/kds/orders", headers=auth_header(owner["accessToken"]))
         progressed_item = orders_after_progress.json()["orders"][0]["items"][0]
         assert progressed_item["done"] is True
+        assert progressed_item["completedQuantity"] == 1
         assert progressed_item["doneAt"] is not None
+        assert progressed_item["options"][0]["done"] is False
+        assert progressed_item["options"][0]["completedQuantity"] == 0
 
         hidden = client.patch(
             f"/api/kds/orders/{order['id']}/hide",
@@ -191,3 +207,147 @@ def test_order_board_actions_block_other_store_access() -> None:
             headers=auth_header(owner_one["accessToken"]),
         )
         assert forbidden_progress.status_code == 403
+
+        forbidden_option_progress = client.patch(
+            f"/api/kds/order-items/{item['id']}/options/0/progress",
+            json={"delta": 1},
+            headers=auth_header(owner_one["accessToken"]),
+        )
+        assert forbidden_option_progress.status_code == 403
+
+
+def test_quantity_progress_and_option_progress_persist_in_kds_orders() -> None:
+    with TestClient(app) as client:
+        owner = register_approve_and_login(
+            client,
+            login_id="owner-quantity-progress",
+            store_name="Quantity Progress Store",
+        )
+
+        webhook = client.post(
+            "/api/external/orders/webhook",
+            json=sample_payload(
+                event_id="evt-quantity-progress",
+                order_id="order-quantity-progress",
+                store_id=owner["store"]["storeId"],
+                order_number="QP-001",
+                quantity=2,
+            ),
+        )
+        assert webhook.status_code == 200
+
+        orders_response = client.get("/api/kds/orders", headers=auth_header(owner["accessToken"]))
+        item = orders_response.json()["orders"][0]["items"][0]
+        assert item["targetQuantity"] == 2
+        assert item["completedQuantity"] == 0
+        assert item["done"] is False
+        assert item["options"][0]["targetQuantity"] == 2
+        assert item["options"][0]["completedQuantity"] == 0
+
+        first_progress = client.patch(
+            f"/api/kds/order-items/{item['id']}/progress",
+            json={"delta": 1},
+            headers=auth_header(owner["accessToken"]),
+        )
+        assert first_progress.status_code == 200
+        assert first_progress.json()["completedQuantity"] == 1
+        assert first_progress.json()["done"] is False
+
+        orders_after_first = client.get("/api/kds/orders", headers=auth_header(owner["accessToken"]))
+        first_item = orders_after_first.json()["orders"][0]["items"][0]
+        assert first_item["completedQuantity"] == 1
+        assert first_item["done"] is False
+        assert first_item["options"][0]["completedQuantity"] == 0
+        assert first_item["options"][0]["done"] is False
+
+        second_progress = client.patch(
+            f"/api/kds/order-items/{item['id']}/progress",
+            json={"delta": 1},
+            headers=auth_header(owner["accessToken"]),
+        )
+        assert second_progress.status_code == 200
+        assert second_progress.json()["completedQuantity"] == 2
+        assert second_progress.json()["done"] is True
+
+        orders_after_second = client.get("/api/kds/orders", headers=auth_header(owner["accessToken"]))
+        second_item = orders_after_second.json()["orders"][0]["items"][0]
+        assert second_item["completedQuantity"] == 2
+        assert second_item["done"] is True
+        assert second_item["options"][0]["completedQuantity"] == 0
+        assert second_item["options"][0]["done"] is False
+
+        option_progress = client.patch(
+            f"/api/kds/order-items/{item['id']}/options/0/progress",
+            json={"completedQuantity": 2},
+            headers=auth_header(owner["accessToken"]),
+        )
+        assert option_progress.status_code == 200
+        assert option_progress.json()["optionIndex"] == 0
+        assert option_progress.json()["completedQuantity"] == 2
+        assert option_progress.json()["done"] is True
+
+        orders_after_option_progress = client.get("/api/kds/orders", headers=auth_header(owner["accessToken"]))
+        option_progress_item = orders_after_option_progress.json()["orders"][0]["items"][0]
+        assert option_progress_item["completedQuantity"] == 2
+        assert option_progress_item["options"][0]["completedQuantity"] == 2
+        assert option_progress_item["options"][0]["done"] is True
+        assert option_progress_item["done"] is True
+
+
+def test_item_and_option_progress_do_not_auto_sync() -> None:
+    with TestClient(app) as client:
+        owner = register_approve_and_login(
+            client,
+            login_id="owner-independent-progress",
+            store_name="Independent Progress Store",
+        )
+
+        webhook = client.post(
+            "/api/external/orders/webhook",
+            json=sample_payload(
+                event_id="evt-independent-progress",
+                order_id="order-independent-progress",
+                store_id=owner["store"]["storeId"],
+                order_number="IP-001",
+                quantity=2,
+            ),
+        )
+        assert webhook.status_code == 200
+
+        orders_response = client.get("/api/kds/orders", headers=auth_header(owner["accessToken"]))
+        item = orders_response.json()["orders"][0]["items"][0]
+
+        option_complete = client.patch(
+            f"/api/kds/order-items/{item['id']}/options/0/progress",
+            json={"completedQuantity": 2},
+            headers=auth_header(owner["accessToken"]),
+        )
+        assert option_complete.status_code == 200
+
+        orders_after_option = client.get("/api/kds/orders", headers=auth_header(owner["accessToken"]))
+        item_after_option = orders_after_option.json()["orders"][0]["items"][0]
+        assert item_after_option["completedQuantity"] == 0
+        assert item_after_option["done"] is False
+        assert item_after_option["options"][0]["completedQuantity"] == 2
+        assert item_after_option["options"][0]["done"] is True
+
+        item_complete = client.patch(
+            f"/api/kds/order-items/{item['id']}/progress",
+            json={"completedQuantity": 2},
+            headers=auth_header(owner["accessToken"]),
+        )
+        assert item_complete.status_code == 200
+
+        option_reset = client.patch(
+            f"/api/kds/order-items/{item['id']}/options/0/progress",
+            json={"completedQuantity": 0},
+            headers=auth_header(owner["accessToken"]),
+        )
+        assert option_reset.status_code == 200
+
+        orders_after_item = client.get("/api/kds/orders", headers=auth_header(owner["accessToken"]))
+        item_after_item = orders_after_item.json()["orders"][0]["items"][0]
+        assert item_after_item["completedQuantity"] == 2
+        assert item_after_item["done"] is True
+        assert item_after_item["options"][0]["completedQuantity"] == 0
+        assert item_after_item["options"][0]["done"] is False

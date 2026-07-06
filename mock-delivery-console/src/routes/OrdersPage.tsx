@@ -10,8 +10,10 @@ import {
   Trash2,
   ClipboardCopy,
   Inbox,
+  Pencil,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 import { RuntimeStatus } from "@/components/runtime-status"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -58,6 +60,8 @@ export default function OrdersPage() {
   const [activeConfig, setActiveConfig] = useState<ApiConfig | null>(null)
 
   const [order, setOrder] = useState<GeneratedOrder | null>(null)
+  const [orderDraft, setOrderDraft] = useState("")
+  const [isEditingPayload, setIsEditingPayload] = useState(false)
   const [records, setRecords] = useState<OrderRecord[]>([])
 
   const [isGenerating, setIsGenerating] = useState(false)
@@ -107,6 +111,8 @@ export default function OrdersPage() {
     try {
       const generated = await apiGenerateOrder(selectedStoreId)
       setOrder(generated)
+      setOrderDraft(JSON.stringify(generated, null, 2))
+      setIsEditingPayload(false)
       toast.success("AI가 주문 조합을 생성했습니다")
     } catch (error) {
       toast.error(getFriendlyError(error, "주문 생성에 실패했습니다"))
@@ -122,7 +128,11 @@ export default function OrdersPage() {
     }
     setIsSending(true)
     try {
-      const record = await apiSendOrder(order)
+      const orderToSend = parseOrderDraft({ refreshCreatedAt: true })
+      if (!orderToSend) return
+      setOrder(orderToSend)
+      setOrderDraft(JSON.stringify(orderToSend, null, 2))
+      const record = await apiSendOrder(orderToSend)
       setRecords((prev) => [record, ...prev])
       if (record.status === "success") {
         toast.success(`주문 전송 성공 (HTTP ${record.httpStatus})`)
@@ -146,11 +156,42 @@ export default function OrdersPage() {
   const handleCopyJson = async () => {
     if (!order) return
     try {
-      await navigator.clipboard.writeText(JSON.stringify(order, null, 2))
+      await navigator.clipboard.writeText(orderDraft || JSON.stringify(order, null, 2))
       toast.success("JSON을 복사했습니다")
     } catch {
       toast.error("복사에 실패했습니다")
     }
+  }
+
+  const parseOrderDraft = (options: { refreshCreatedAt?: boolean } = {}) => {
+    try {
+      const parsed = JSON.parse(orderDraft) as GeneratedOrder
+      if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.items)) {
+        toast.error("주문 payload 형식이 올바르지 않습니다")
+        return null
+      }
+      return options.refreshCreatedAt
+        ? { ...parsed, createdAt: new Date().toISOString() }
+        : parsed
+    } catch {
+      toast.error("JSON 문법을 확인하세요")
+      return null
+    }
+  }
+
+  const handleTogglePayloadEdit = () => {
+    if (!order) return
+    if (isEditingPayload) {
+      const parsed = parseOrderDraft({ refreshCreatedAt: true })
+      if (!parsed) return
+      setOrder(parsed)
+      setOrderDraft(JSON.stringify(parsed, null, 2))
+      setIsEditingPayload(false)
+      toast.success("payload 수정 내용을 적용했습니다")
+      return
+    }
+    setOrderDraft(JSON.stringify(order, null, 2))
+    setIsEditingPayload(true)
   }
 
   const formatTime = (iso: string) =>
@@ -217,6 +258,8 @@ export default function OrdersPage() {
                       setSelectedStoreId(v)
                       window.localStorage.setItem(SELECTED_STORE_STORAGE_KEY, v)
                       setOrder(null)
+                      setOrderDraft("")
+                      setIsEditingPayload(false)
                     }
                   }}
                 >
@@ -284,15 +327,24 @@ export default function OrdersPage() {
               <div className="flex items-center justify-between gap-3">
                 <CardTitle className="text-lg">JSON 뷰어</CardTitle>
                 {order && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCopyJson}
-                    className="shrink-0"
-                  >
-                    <ClipboardCopy />
-                    복사
-                  </Button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCopyJson}
+                    >
+                      <ClipboardCopy />
+                      복사
+                    </Button>
+                    <Button
+                      variant={isEditingPayload ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={handleTogglePayloadEdit}
+                    >
+                      <Pencil />
+                      {isEditingPayload ? "적용" : "편집"}
+                    </Button>
+                  </div>
                 )}
               </div>
             </CardHeader>
@@ -308,11 +360,20 @@ export default function OrdersPage() {
                       by {order.generatedBy}
                     </span>
                   </div>
-                  <ScrollArea className="h-[360px] rounded-lg border bg-muted/40">
-                    <pre className="p-3 font-mono text-xs leading-relaxed text-foreground">
-                      {JSON.stringify(order, null, 2)}
-                    </pre>
-                  </ScrollArea>
+                  {isEditingPayload ? (
+                    <Textarea
+                      className="h-[360px] resize-none overflow-auto bg-muted/40 font-mono text-xs leading-relaxed"
+                      value={orderDraft}
+                      spellCheck={false}
+                      onChange={(event) => setOrderDraft(event.target.value)}
+                    />
+                  ) : (
+                    <ScrollArea className="h-[360px] rounded-lg border bg-muted/40">
+                      <pre className="p-3 font-mono text-xs leading-relaxed text-foreground">
+                        {orderDraft || JSON.stringify(order, null, 2)}
+                      </pre>
+                    </ScrollArea>
+                  )}
                 </div>
               ) : (
                 <div className="flex h-[360px] flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-center">

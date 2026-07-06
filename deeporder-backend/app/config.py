@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_model: str | None = None
     openai_base_url: str = "https://api.openai.com/v1"
+    support_ai_provider: str = "mock"
     juso_confirm_key: str | None = Field(
         default=None,
         validation_alias=AliasChoices("JUSO_CONFIRM_KEY", "DEEPORDER_JUSO_CONFIRM_KEY"),

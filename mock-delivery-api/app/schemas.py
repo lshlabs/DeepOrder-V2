@@ -258,6 +258,11 @@ class MockOrderBody(BaseModel):
     orderNumber: str
     customerRequest: str | None = None
     deliveryRequest: str | None = None
+    deliveryPhone: str | None = None
+    deliveryZipNo: str | None = None
+    deliveryRoadAddress: str | None = None
+    deliveryJibunAddress: str | None = None
+    deliveryAddressDetail: str | None = None
     orderedAt: datetime | None = None
     items: list[MockOrderItem] = Field(min_length=1)
 

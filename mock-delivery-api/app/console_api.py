@@ -6,7 +6,7 @@ from typing import Literal
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -237,6 +237,15 @@ class GeneratedOrderOut(BaseModel):
     storeName: str
     createdAt: str
     generatedBy: str
+    customerRequest: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("customerRequest", "request"),
+    )
+    deliveryPhone: str | None = None
+    deliveryZipNo: str | None = None
+    deliveryRoadAddress: str | None = None
+    deliveryJibunAddress: str | None = None
+    deliveryAddressDetail: str | None = None
     items: list[GeneratedOrderItemOut]
     totalPrice: int
 
@@ -785,6 +794,8 @@ def generate_order(
         storeName=store.store_name,
         createdAt=_now_iso(),
         generatedBy="fallback-generator",
+        customerRequest=_fallback_customer_request(),
+        **_sample_delivery_info(store.store_id),
         items=items,
         totalPrice=sum(item.itemTotal for item in items),
     )
@@ -793,6 +804,7 @@ def generate_order(
 @router.post("/orders/send")
 def send_order(request: dict, db: Session = Depends(get_db)):
     order = GeneratedOrderOut.model_validate(request)
+    order = order.model_copy(update={"createdAt": _now_iso()})
     settings = get_settings()
     if not order.items:
         record = _create_order_record(
@@ -1138,6 +1150,48 @@ def _build_fallback_order_item(db: Session, menu: Menu) -> GeneratedOrderItemOut
     )
 
 
+def _fallback_customer_request() -> str | None:
+    return random.choice(
+        [
+            None,
+            "",
+            "단무지 넉넉히 부탁드립니다.",
+            "수저와 젓가락 2세트 부탁드립니다.",
+            "일회용 수저는 필요 없습니다.",
+            "짬뽕 국물은 따로 포장 부탁드립니다.",
+            "너무 맵지 않게 부탁드립니다.",
+        ]
+    )
+
+
+def _sample_delivery_info(store_id: str) -> dict[str, str]:
+    samples = [
+        {
+            "deliveryPhone": "010-1234-5678",
+            "deliveryZipNo": "04524",
+            "deliveryRoadAddress": "서울 중구 세종대로 110",
+            "deliveryJibunAddress": "서울 중구 태평로1가 31",
+            "deliveryAddressDetail": "101호",
+        },
+        {
+            "deliveryPhone": "010-2345-6789",
+            "deliveryZipNo": "06164",
+            "deliveryRoadAddress": "서울 강남구 테헤란로 521",
+            "deliveryJibunAddress": "서울 강남구 삼성동 159",
+            "deliveryAddressDetail": "202호",
+        },
+        {
+            "deliveryPhone": "010-3456-7890",
+            "deliveryZipNo": "48060",
+            "deliveryRoadAddress": "부산 해운대구 센텀중앙로 97",
+            "deliveryJibunAddress": "부산 해운대구 재송동 1209",
+            "deliveryAddressDetail": "1503호",
+        },
+    ]
+    index = sum(ord(char) for char in store_id) % len(samples)
+    return samples[index]
+
+
 def _try_generate_order_with_ai(
     db: Session,
     store: Store,
@@ -1150,7 +1204,7 @@ def _try_generate_order_with_ai(
         return None
 
     try:
-        ai_items = _generate_order_items_with_ai(db, menus, active_config)
+        ai_items, customer_request = _generate_order_with_ai(db, menus, active_config)
     except Exception:
         return None
     if not ai_items:
@@ -1163,16 +1217,18 @@ def _try_generate_order_with_ai(
         storeName=store.store_name,
         createdAt=_now_iso(),
         generatedBy=f"{active_config.provider}:{active_config.model}",
+        customerRequest=customer_request,
+        **_sample_delivery_info(store.store_id),
         items=ai_items,
         totalPrice=sum(item.itemTotal for item in ai_items),
     )
 
 
-def _generate_order_items_with_ai(
+def _generate_order_with_ai(
     db: Session,
     menus: list[Menu],
     active_config: ApiConfig,
-) -> list[GeneratedOrderItemOut]:
+) -> tuple[list[GeneratedOrderItemOut], str | None]:
     catalog_payload = _catalog_for_ai(db, menus)
     prompt = _build_ai_generation_prompt(catalog_payload)
     provider = active_config.provider.strip().lower()
@@ -1182,9 +1238,12 @@ def _generate_order_items_with_ai(
     elif provider in {"google", "gemini"} or "generativelanguage.googleapis.com" in active_config.endpoint:
         raw_result = _call_gemini_generator(active_config, prompt)
     else:
-        return []
+        return [], None
 
-    return _validated_generated_items_from_ai(db, menus, raw_result)
+    return (
+        _validated_generated_items_from_ai(db, menus, raw_result),
+        _validated_customer_request_from_ai(raw_result),
+    )
 
 
 def _call_openai_compatible_generator(active_config: ApiConfig, prompt: str) -> dict:
@@ -1298,10 +1357,22 @@ def _build_ai_generation_prompt(catalog_payload: list[dict[str, object]]) -> str
         "- Include at least one MAIN or SET menu.\n"
         "- Respect required option groups.\n"
         "- selectedOptions entries must reference existing groupName and optionName pairs.\n"
+        "- customerRequest is optional and should be short, natural Korean like a real delivery order.\n"
+        "- Some orders should use null or an empty string for customerRequest.\n"
+        "- Do not create unrelated, excessive, or menu-inappropriate requests.\n"
         "- Return JSON only in this shape:\n"
-        '{ "items": [ { "menuId": "MENU_001", "quantity": 1, "selectedOptions": [ { "groupName": "맵기", "optionName": "보통" } ] } ] }\n\n'
+        '{ "customerRequest": "수저와 젓가락 2세트 부탁드립니다.", "items": [ { "menuId": "MENU_001", "quantity": 1, "selectedOptions": [ { "groupName": "맵기", "optionName": "보통" } ] } ] }\n\n'
         f"Catalog:\n{json.dumps(catalog_payload, ensure_ascii=False, indent=2)}"
     )
+
+
+def _validated_customer_request_from_ai(raw_result: dict) -> str | None:
+    customer_request = raw_result.get("customerRequest")
+    if customer_request is None:
+        return None
+    if isinstance(customer_request, str):
+        return customer_request
+    return None
 
 
 def _validated_generated_items_from_ai(
@@ -1445,6 +1516,12 @@ def _generated_order_to_mock_payload(order: GeneratedOrderOut, db: Session) -> M
         order=MockOrderBody(
             orderId=order.orderId,
             orderNumber=order.orderNumber,
+            customerRequest=order.customerRequest,
+            deliveryPhone=order.deliveryPhone,
+            deliveryZipNo=order.deliveryZipNo,
+            deliveryRoadAddress=order.deliveryRoadAddress,
+            deliveryJibunAddress=order.deliveryJibunAddress,
+            deliveryAddressDetail=order.deliveryAddressDetail,
             orderedAt=datetime.fromisoformat(order.createdAt.replace("Z", "+00:00")),
             items=[
                 MockOrderItem(

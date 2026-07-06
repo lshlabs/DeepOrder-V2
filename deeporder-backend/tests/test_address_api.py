@@ -1,10 +1,4 @@
-from pathlib import Path
-
 from fastapi.testclient import TestClient
-
-db_path = Path("deeporder.db")
-if db_path.exists():
-    db_path.unlink()
 
 from app.config import get_settings  # noqa: E402
 from app.main import app  # noqa: E402

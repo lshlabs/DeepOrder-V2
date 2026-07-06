@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 from app.models import (
     AccountType,
@@ -11,6 +11,10 @@ from app.models import (
     RiskLevel,
     StoreOperatingStatus,
     StoreStatusSource,
+    SupportConversationMode,
+    SupportConversationStatus,
+    SupportEventActorType,
+    SupportMessageSenderType,
     UserRole,
 )
 
@@ -47,13 +51,29 @@ class WebhookResponse(BaseModel):
     message: str
 
 
+class OrderItemOptionOut(BaseModel):
+    id: str
+    parentItemId: int
+    label: str
+    groupName: str | None = None
+    optionName: str
+    sortOrder: int
+    targetQuantity: int
+    completedQuantity: int
+    done: bool = False
+    doneAt: datetime | None = None
+    doneByUserId: int | None = None
+
+
 class OrderItemOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
     name: str
     quantity: int
-    options: list[str]
+    targetQuantity: int
+    completedQuantity: int
+    options: list[OrderItemOptionOut]
     unit_price: int | None
     total_price: int | None
     done: bool = False
@@ -89,6 +109,11 @@ class OrderOut(BaseModel):
     status: OrderStatus
     customer_request: str | None
     delivery_request: str | None
+    delivery_phone: str | None = Field(default=None, alias="deliveryPhone")
+    delivery_zip_no: str | None = Field(default=None, alias="deliveryZipNo")
+    delivery_road_address: str | None = Field(default=None, alias="deliveryRoadAddress")
+    delivery_jibun_address: str | None = Field(default=None, alias="deliveryJibunAddress")
+    delivery_address_detail: str | None = Field(default=None, alias="deliveryAddressDetail")
     ordered_at: datetime | None
     created_at: datetime
     updated_at: datetime
@@ -271,6 +296,125 @@ class UpdateStoreSettingsIn(BaseModel):
     autoAccept: bool
 
 
+class SupportMessageOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    conversation_id: int
+    sender_type: SupportMessageSenderType
+    sender_id: int | None = None
+    content: str
+    metadata_json: dict[str, Any]
+    client_message_id: str | None = None
+    created_at: datetime
+    read_at: datetime | None = None
+
+    @field_serializer("created_at", "read_at")
+    def serialize_datetime(self, value: datetime | None) -> str | None:
+        return _serialize_utc_datetime(value)
+
+
+class SupportConversationOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    store_id: str
+    user_id: int
+    status: SupportConversationStatus
+    mode: SupportConversationMode
+    assigned_agent_id: int | None = None
+    source: str
+    summary: str | None = None
+    created_at: datetime
+    updated_at: datetime
+    closed_at: datetime | None = None
+    expires_at: datetime | None = None
+    messages: list[SupportMessageOut] = Field(default_factory=list)
+
+    @field_serializer("created_at", "updated_at", "closed_at", "expires_at")
+    def serialize_datetime(self, value: datetime | None) -> str | None:
+        return _serialize_utc_datetime(value)
+
+
+def _serialize_utc_datetime(value: datetime | None) -> str | None:
+    if value is None:
+        return None
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=UTC)
+    return value.astimezone(UTC).isoformat()
+
+
+class CreateSupportConversationIn(BaseModel):
+    source: str = Field(default="kds-web", min_length=1, max_length=64)
+
+
+class SendSupportMessageIn(BaseModel):
+    content: str = Field(min_length=1, max_length=4000)
+    client_message_id: str | None = Field(default=None, max_length=64)
+
+
+class SupportConversationListOut(BaseModel):
+    conversations: list[SupportConversationOut]
+
+
+class SupportMessageListOut(BaseModel):
+    messages: list[SupportMessageOut]
+
+
+class CreateSupportEventIn(BaseModel):
+    event_type: str = Field(min_length=1, max_length=64)
+    payload: dict[str, Any] = Field(default_factory=dict)
+
+
+class SupportEventOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    conversation_id: int
+    event_type: str
+    payload_json: dict[str, Any]
+    actor_type: SupportEventActorType
+    actor_id: int | None = None
+    created_at: datetime
+
+    @field_serializer("created_at")
+    def serialize_datetime(self, value: datetime | None) -> str | None:
+        return _serialize_utc_datetime(value)
+
+
+class SupportEventListOut(BaseModel):
+    events: list[SupportEventOut]
+
+
+class MarkSupportReadIn(BaseModel):
+    last_read_message_id: int = Field(gt=0)
+
+
+class SupportAgentQueueItemOut(BaseModel):
+    conversation_id: int
+    store_id: str
+    user_id: int
+    status: SupportConversationStatus
+    mode: SupportConversationMode
+    latest_message: SupportMessageOut | None = None
+    latest_message_preview: str | None = None
+    latest_message_sender_type: SupportMessageSenderType | None = None
+    waiting_duration_seconds: int
+    assigned_agent_id: int | None = None
+    unread_count: int
+    created_at: datetime
+    updated_at: datetime
+    summary: str | None = None
+
+    @field_serializer("created_at", "updated_at")
+    def serialize_datetime(self, value: datetime | None) -> str | None:
+        return _serialize_utc_datetime(value)
+
+
+class SupportAgentQueueOut(BaseModel):
+    conversations: list[SupportAgentQueueItemOut]
+
+
 class AssignedMenuOut(BaseModel):
     id: int | str
     menuName: str
@@ -340,11 +484,16 @@ class ArchiveCompletedOrdersResponse(BaseModel):
 
 
 class UpdateOrderItemProgressIn(BaseModel):
-    done: bool
+    done: bool | None = None
+    delta: int | None = None
+    completedQuantity: int | None = Field(default=None, ge=0)
 
 
 class OrderItemProgressOut(BaseModel):
     orderItemId: int
+    optionIndex: int | None = None
+    targetQuantity: int
+    completedQuantity: int
     done: bool
     doneAt: datetime | None = None
     doneByUserId: int | None = None

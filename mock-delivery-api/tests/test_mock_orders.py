@@ -1,4 +1,6 @@
 from pathlib import Path
+from datetime import datetime
+import json
 import re
 from types import SimpleNamespace
 
@@ -484,7 +486,14 @@ def test_console_api_configs_and_order_records(monkeypatch) -> None:
         order = generated.json()
         assert order["storeId"] == store["id"]
         assert order["items"][0]["menuId"] == menu["id"]
+        assert order["deliveryPhone"]
+        assert order["deliveryZipNo"]
+        assert order["deliveryRoadAddress"]
+        assert order["deliveryJibunAddress"]
+        assert order["deliveryAddressDetail"]
 
+        order.pop("customerRequest", None)
+        order["request"] = "수저와 젓가락 2세트 부탁드립니다."
         sent = client.post("/api/mock/orders/send", json=order)
         assert sent.status_code == 200
         assert sent.json()["status"] == "success"
@@ -492,6 +501,21 @@ def test_console_api_configs_and_order_records(monkeypatch) -> None:
         assert sent.json()["message"] == "accepted"
         assert sent_payloads[-1]["json"]["order"]["orderId"] == order["orderId"]
         assert sent_payloads[-1]["json"]["order"]["orderNumber"] == order["orderNumber"]
+        assert sent_payloads[-1]["json"]["order"]["customerRequest"] == (
+            "수저와 젓가락 2세트 부탁드립니다."
+        )
+        assert sent_payloads[-1]["json"]["order"]["deliveryPhone"] == order["deliveryPhone"]
+        assert sent_payloads[-1]["json"]["order"]["deliveryZipNo"] == order["deliveryZipNo"]
+        assert sent_payloads[-1]["json"]["order"]["deliveryRoadAddress"] == order["deliveryRoadAddress"]
+        assert sent_payloads[-1]["json"]["order"]["deliveryJibunAddress"] == order["deliveryJibunAddress"]
+        assert sent_payloads[-1]["json"]["order"]["deliveryAddressDetail"] == order["deliveryAddressDetail"]
+        saved_payload = json.loads(sent.json()["payload"])
+        assert saved_payload["customerRequest"] == "수저와 젓가락 2세트 부탁드립니다."
+        assert saved_payload["deliveryPhone"] == order["deliveryPhone"]
+        assert saved_payload["deliveryZipNo"] == order["deliveryZipNo"]
+        assert saved_payload["deliveryRoadAddress"] == order["deliveryRoadAddress"]
+        assert saved_payload["deliveryJibunAddress"] == order["deliveryJibunAddress"]
+        assert saved_payload["deliveryAddressDetail"] == order["deliveryAddressDetail"]
 
         records = client.get("/api/mock/order-records")
         assert records.status_code == 200
@@ -554,15 +578,73 @@ def test_console_order_send_transforms_to_deeporder_webhook(monkeypatch) -> None
             json={"generatedBy": "test"},
         )
         assert generated.status_code == 200
+        generated_order = generated.json()
+        generated_order["customerRequest"] = "문 앞에 두고 벨 눌러주세요."
 
-        sent = client.post("/api/mock/orders/send", json=generated.json())
+        sent = client.post("/api/mock/orders/send", json=generated_order)
         assert sent.status_code == 200
         assert sent.json()["status"] == "success"
         assert sent_payloads[0]["eventType"] == "ORDER_CREATED"
         assert sent_payloads[0]["storeId"] == store["id"]
-        assert sent_payloads[0]["order"]["orderId"] == generated.json()["orderId"]
-        assert sent_payloads[0]["order"]["orderNumber"] == generated.json()["orderNumber"]
+        assert sent_payloads[0]["order"]["orderId"] == generated_order["orderId"]
+        assert sent_payloads[0]["order"]["orderNumber"] == generated_order["orderNumber"]
+        assert sent_payloads[0]["order"]["customerRequest"] == "문 앞에 두고 벨 눌러주세요."
+        assert sent_payloads[0]["order"]["deliveryPhone"] == generated_order["deliveryPhone"]
+        assert sent_payloads[0]["order"]["deliveryZipNo"] == generated_order["deliveryZipNo"]
+        assert sent_payloads[0]["order"]["deliveryRoadAddress"] == generated_order["deliveryRoadAddress"]
+        assert sent_payloads[0]["order"]["deliveryJibunAddress"] == generated_order["deliveryJibunAddress"]
+        assert sent_payloads[0]["order"]["deliveryAddressDetail"] == generated_order["deliveryAddressDetail"]
         assert sent_payloads[0]["order"]["items"][0]["name"] == "Webhook 메뉴"
+
+
+def test_console_order_send_refreshes_edited_created_at(monkeypatch) -> None:
+    sent_payloads: list[dict] = []
+
+    def fake_post(url: str, json: dict, headers: dict, timeout: float) -> SimpleNamespace:
+        sent_payloads.append(json)
+        return SimpleNamespace(status_code=202, text='{"ok":true}')
+
+    import app.console_api as console_api
+
+    monkeypatch.setattr(console_api.httpx, "post", fake_post)
+    monkeypatch.setattr(
+        console_api,
+        "get_settings",
+        lambda: SimpleNamespace(deeporder_webhook_url="http://127.0.0.1:8000/api/external/orders/webhook"),
+    )
+
+    with TestClient(app) as client:
+        store = client.post("/api/mock/stores", json={"name": "CreatedAt 테스트 매장"}).json()
+        client.post(
+            "/api/mock/menus",
+            json={
+                "storeId": store["id"],
+                "name": "CreatedAt 메뉴",
+                "type": "MAIN",
+                "basePrice": 15000,
+                "allergens": [],
+                "isAvailable": True,
+                "sortOrder": 0,
+            },
+        )
+
+        generated = client.post(
+            f"/api/mock/stores/{store['id']}/orders/generate",
+            json={"generatedBy": "test"},
+        )
+        edited_order = generated.json()
+        edited_order["createdAt"] = "not-a-date"
+
+        sent = client.post("/api/mock/orders/send", json=edited_order)
+
+        assert sent.status_code == 200
+        assert sent.json()["status"] == "success"
+        assert sent_payloads[0]["order"]["orderedAt"] != "not-a-date"
+        datetime.fromisoformat(sent_payloads[0]["order"]["orderedAt"])
+
+        saved_payload = json.loads(sent.json()["payload"])
+        assert saved_payload["createdAt"] != "not-a-date"
+        datetime.fromisoformat(saved_payload["createdAt"])
 
 
 def test_generate_order_uses_ai_api_when_active_config_is_available(monkeypatch) -> None:
@@ -582,7 +664,8 @@ def test_generate_order_uses_ai_api_when_active_config_is_available(monkeypatch)
                     {
                         "message": {
                             "content": (
-                                f'{{"items":[{{"menuId":"{expected_menu_id["value"]}","quantity":2,'
+                                '{"customerRequest":"너무 맵지 않게 부탁드립니다.",'
+                                f'"items":[{{"menuId":"{expected_menu_id["value"]}","quantity":2,'
                                 '"selectedOptions":[{"groupName":"맵기","optionName":"보통"}]}]}'
                             )
                         }
@@ -646,6 +729,12 @@ def test_generate_order_uses_ai_api_when_active_config_is_available(monkeypatch)
         assert generated.status_code == 200
         body = generated.json()
         assert body["generatedBy"] == "OpenAI:gpt-4o-mini"
+        assert body["customerRequest"] == "너무 맵지 않게 부탁드립니다."
+        assert body["deliveryPhone"]
+        assert body["deliveryZipNo"]
+        assert body["deliveryRoadAddress"]
+        assert body["deliveryJibunAddress"]
+        assert body["deliveryAddressDetail"]
         assert body["items"][0]["menuId"] == menu["id"]
         assert body["items"][0]["quantity"] == 2
         assert body["items"][0]["selectedOptions"][0]["groupName"] == "맵기"
@@ -697,7 +786,23 @@ def test_generate_order_falls_back_when_ai_request_fails(monkeypatch) -> None:
         body = generated.json()
         assert body["generatedBy"] == "fallback-generator"
         assert body["items"][0]["menuId"] == menu["id"]
+        assert "customerRequest" in body
+        assert body["deliveryPhone"]
+        assert body["deliveryZipNo"]
+        assert body["deliveryRoadAddress"]
+        assert body["deliveryJibunAddress"]
+        assert body["deliveryAddressDetail"]
         assert re.fullmatch(r"[A-Z0-9]{6}", body["orderNumber"]) is not None
+
+
+def test_fallback_customer_request_generates_present_and_empty_values(monkeypatch) -> None:
+    import app.console_api as console_api
+
+    monkeypatch.setattr(console_api.random, "choice", lambda values: values[0])
+    assert console_api._fallback_customer_request() is None
+
+    monkeypatch.setattr(console_api.random, "choice", lambda values: values[2])
+    assert console_api._fallback_customer_request() == "단무지 넉넉히 부탁드립니다."
 
 
 def test_console_flat_catalog_import_export_contract() -> None:
