@@ -1,0 +1,255 @@
+/* Dashboard-scoped semantic overrides and reset kept until app-wide preflight is reconsidered. */
+.kds-stats-dashboard {
+  --kds-stats-background: 220 25% 97%;
+  --kds-stats-foreground: 220 30% 12%;
+  --kds-stats-card: 0 0% 100%;
+  --kds-stats-card-foreground: 220 30% 12%;
+  --kds-stats-popover: 0 0% 100%;
+  --kds-stats-popover-foreground: 220 30% 12%;
+  --kds-stats-primary: 217 91% 60%;
+  --kds-stats-primary-foreground: 0 0% 100%;
+  --kds-stats-secondary: 220 20% 93%;
+  --kds-stats-secondary-foreground: 220 30% 12%;
+  --kds-stats-muted: 220 15% 94%;
+  --kds-stats-muted-foreground: 220 10% 46%;
+  --kds-stats-accent: 25 95% 53%;
+  --kds-stats-accent-foreground: 0 0% 100%;
+  --kds-stats-destructive: 0 84% 60%;
+  --kds-stats-destructive-foreground: 0 0% 100%;
+  --kds-stats-border: 220 15% 90%;
+  --kds-stats-input: 220 15% 90%;
+  --kds-stats-ring: 217 91% 60%;
+  --kds-stats-chart-1: 217 91% 60%;
+  --kds-stats-chart-2: 25 95% 53%;
+  --kds-stats-chart-3: 142 71% 45%;
+  --kds-stats-chart-4: 280 65% 60%;
+  --kds-stats-chart-5: 340 75% 55%;
+  --kds-stats-radius: 0.75rem;
+  --kds-ui-background: var(--kds-stats-background);
+  --kds-ui-foreground: var(--kds-stats-foreground);
+  --kds-ui-card: var(--kds-stats-card);
+  --kds-ui-card-foreground: var(--kds-stats-card-foreground);
+  --kds-ui-popover: var(--kds-stats-popover);
+  --kds-ui-popover-foreground: var(--kds-stats-popover-foreground);
+  --kds-ui-primary: var(--kds-stats-primary);
+  --kds-ui-primary-foreground: var(--kds-stats-primary-foreground);
+  --kds-ui-secondary: var(--kds-stats-secondary);
+  --kds-ui-secondary-foreground: var(--kds-stats-secondary-foreground);
+  --kds-ui-muted: var(--kds-stats-muted);
+  --kds-ui-muted-foreground: var(--kds-stats-muted-foreground);
+  --kds-ui-accent: var(--kds-stats-accent);
+  --kds-ui-accent-foreground: var(--kds-stats-accent-foreground);
+  --kds-ui-destructive: var(--kds-stats-destructive);
+  --kds-ui-destructive-foreground: var(--kds-stats-destructive-foreground);
+  --kds-ui-border: var(--kds-stats-border);
+  --kds-ui-input: var(--kds-stats-input);
+  --kds-ui-ring: var(--kds-stats-ring);
+  --kds-ui-radius: var(--kds-stats-radius);
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  background: hsl(var(--kds-stats-background));
+  color: hsl(var(--kds-stats-foreground));
+  font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scrollbar-width: none;
+}
+
+.kds-stats-dashboard.dark {
+  --kds-stats-background: 222 30% 7%;
+  --kds-stats-foreground: 210 30% 94%;
+  --kds-stats-card: 220 28% 11%;
+  --kds-stats-card-foreground: 210 30% 94%;
+  --kds-stats-popover: 220 28% 11%;
+  --kds-stats-popover-foreground: 210 30% 94%;
+  --kds-stats-primary: 217 91% 60%;
+  --kds-stats-primary-foreground: 0 0% 100%;
+  --kds-stats-secondary: 220 25% 16%;
+  --kds-stats-secondary-foreground: 210 30% 94%;
+  --kds-stats-muted: 220 20% 14%;
+  --kds-stats-muted-foreground: 215 15% 55%;
+  --kds-stats-accent: 25 95% 53%;
+  --kds-stats-accent-foreground: 0 0% 100%;
+  --kds-stats-destructive: 0 62% 50%;
+  --kds-stats-destructive-foreground: 0 0% 100%;
+  --kds-stats-border: 220 20% 18%;
+  --kds-stats-input: 220 20% 18%;
+  --kds-stats-ring: 217 91% 60%;
+  --kds-stats-chart-1: 217 91% 60%;
+  --kds-stats-chart-2: 25 95% 53%;
+  --kds-stats-chart-3: 142 71% 45%;
+  --kds-stats-chart-4: 280 65% 60%;
+  --kds-stats-chart-5: 340 75% 55%;
+}
+
+.kds-stats-dashboard::-webkit-scrollbar {
+  display: none;
+}
+
+.kds-stats-dashboard,
+.kds-stats-dashboard::before,
+.kds-stats-dashboard::after,
+.kds-stats-dashboard *,
+.kds-stats-dashboard *::before,
+.kds-stats-dashboard *::after {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-pan-x: ;
+  --tw-pan-y: ;
+  --tw-pinch-zoom: ;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position: ;
+  --tw-gradient-via-position: ;
+  --tw-gradient-to-position: ;
+  --tw-ordinal: ;
+  --tw-slashed-zero: ;
+  --tw-numeric-figure: ;
+  --tw-numeric-spacing: ;
+  --tw-numeric-fraction: ;
+  --tw-ring-inset: ;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-blur: ;
+  --tw-brightness: ;
+  --tw-contrast: ;
+  --tw-grayscale: ;
+  --tw-hue-rotate: ;
+  --tw-invert: ;
+  --tw-saturate: ;
+  --tw-sepia: ;
+  --tw-drop-shadow: ;
+  --tw-backdrop-blur: ;
+  --tw-backdrop-brightness: ;
+  --tw-backdrop-contrast: ;
+  --tw-backdrop-grayscale: ;
+  --tw-backdrop-hue-rotate: ;
+  --tw-backdrop-invert: ;
+  --tw-backdrop-opacity: ;
+  --tw-backdrop-saturate: ;
+  --tw-backdrop-sepia: ;
+  --tw-contain-size: ;
+  --tw-contain-layout: ;
+  --tw-contain-paint: ;
+  --tw-contain-style: ;
+  box-sizing: border-box;
+  border-color: hsl(var(--kds-stats-border));
+  border-style: solid;
+  border-width: 0;
+}
+
+.kds-stats-dashboard svg,
+.kds-stats-dashboard canvas,
+.kds-stats-dashboard audio,
+.kds-stats-dashboard iframe,
+.kds-stats-dashboard embed,
+.kds-stats-dashboard object {
+  display: block;
+  vertical-align: middle;
+}
+
+.kds-stats-dashboard img,
+.kds-stats-dashboard video {
+  display: block;
+  height: auto;
+  max-width: 100%;
+}
+
+.kds-stats-dashboard :where(p) {
+  margin: 0;
+}
+
+.kds-stats-dashboard :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.kds-stats-dashboard :where(button, input, select, textarea) {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+.kds-stats-dashboard :where(button, select) {
+  text-transform: none;
+}
+
+.kds-stats-dashboard :where(button) {
+  appearance: button;
+  background: transparent;
+  background-image: none;
+  border: 0 solid hsl(var(--kds-stats-border));
+  border-radius: 0;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: inherit;
+  height: auto;
+  justify-content: flex-start;
+  min-height: 0;
+  min-width: 0;
+  outline: none;
+  padding: 0;
+  transition-property: color, background-color, border-color, opacity, transform, box-shadow;
+  white-space: normal;
+}
+
+.kds-stats-dashboard :where(button:not(:disabled):hover) {
+  background: transparent;
+}
+
+.kds-stats-dashboard .order-flow-settings-trigger:not(:disabled):hover {
+  background: hsl(var(--kds-stats-muted) / 0.6);
+}
+
+.kds-stats-dashboard .order-flow-settings-panel .order-flow-settings-option:not(:disabled):hover {
+  background: hsl(var(--kds-stats-muted) / 0.5);
+}
+
+.kds-stats-dashboard.kds-stats-dashboard input,
+.kds-stats-dashboard.kds-stats-dashboard select,
+.kds-stats-dashboard.kds-stats-dashboard textarea {
+  background: hsl(var(--kds-stats-card));
+  border: 0 solid hsl(var(--kds-stats-border));
+  border-radius: 0;
+  box-shadow: none;
+  height: auto;
+  min-width: 0;
+  outline: none;
+  padding: 0;
+}
+
+.kds-stats-dashboard.kds-stats-dashboard input:focus,
+.kds-stats-dashboard.kds-stats-dashboard select:focus,
+.kds-stats-dashboard.kds-stats-dashboard textarea:focus,
+.kds-stats-dashboard.kds-stats-dashboard input[readonly]:focus {
+  border-color: transparent;
+  box-shadow: none;
+  outline: none;
+}
+
+@tailwind utilities;
+
+/* Keep utility border width inside the scoped reset while preflight stays disabled. */
+.kds-stats-dashboard :where(.border) {
+  border-style: solid;
+  border-width: 1px;
+}

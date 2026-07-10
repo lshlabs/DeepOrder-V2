@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 
 import { X } from "lucide-react";
 
+import { Button } from "../../../../components/ui/button";
+import { Input } from "../../../../components/ui/input";
 import { apiChangePassword } from "../../../../lib/api";
 import { requestWithReauth } from "../../../../shared/lib/requestWithReauth";
 import type { ShowToast } from "../../../../shared/hooks/useToast";
@@ -94,9 +96,10 @@ export function ChangePasswordModal({
           </button>
         </div>
         <div className="kds-modal-body">
-          <div className="kds-settings-field">
-            <label className="kds-settings-label" htmlFor="pw-current">현재 비밀번호</label>
-            <input
+          <div className="kds-settings-field flex flex-col gap-1.5">
+            <label className="kds-settings-label text-xs font-medium text-muted-foreground" htmlFor="pw-current">현재 비밀번호</label>
+            <Input
+              className="h-10"
               id="pw-current"
               type="password"
               value={currentPassword}
@@ -105,9 +108,10 @@ export function ChangePasswordModal({
               autoComplete="current-password"
             />
           </div>
-          <div className="kds-settings-field">
-            <label className="kds-settings-label" htmlFor="pw-new">새 비밀번호</label>
-            <input
+          <div className="kds-settings-field mt-3 flex flex-col gap-1.5">
+            <label className="kds-settings-label text-xs font-medium text-muted-foreground" htmlFor="pw-new">새 비밀번호</label>
+            <Input
+              className="h-10"
               id="pw-new"
               type="password"
               value={newPassword}
@@ -116,9 +120,10 @@ export function ChangePasswordModal({
               autoComplete="new-password"
             />
           </div>
-          <div className="kds-settings-field">
-            <label className="kds-settings-label" htmlFor="pw-confirm">새 비밀번호 확인</label>
-            <input
+          <div className="kds-settings-field mt-3 flex flex-col gap-1.5">
+            <label className="kds-settings-label text-xs font-medium text-muted-foreground" htmlFor="pw-confirm">새 비밀번호 확인</label>
+            <Input
+              className="h-10"
               id="pw-confirm"
               type="password"
               value={confirmPassword}
@@ -127,14 +132,14 @@ export function ChangePasswordModal({
               autoComplete="new-password"
             />
           </div>
-          {error ? <p className="kds-settings-error">{error}</p> : null}
-          <p className="kds-settings-hint">변경 성공 시 현재 세션이 로그아웃됩니다.</p>
+          {error ? <p className="kds-settings-error mt-3 text-xs text-[var(--color-error-text)]">{error}</p> : null}
+          <p className="kds-settings-hint mt-3 text-xs text-muted-foreground">변경 성공 시 현재 세션이 로그아웃됩니다.</p>
         </div>
         <div className="kds-modal-foot">
-          <button className="kds-modal-btn secondary" onClick={onClose} type="button">취소</button>
-          <button className="kds-modal-btn primary" disabled={submitting} onClick={() => void handleSubmit()} type="button">
+          <Button className="kds-modal-btn secondary" onClick={onClose} type="button" variant="outline">취소</Button>
+          <Button className="kds-modal-btn primary" disabled={submitting} onClick={() => void handleSubmit()} type="button">
             {submitting ? "변경중…" : "변경"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

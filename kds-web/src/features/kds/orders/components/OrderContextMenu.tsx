@@ -26,13 +26,13 @@ export function OrderContextMenu({
   return (
     <ActionMenu
       ariaLabel="주문 작업"
-      className="kds-context-menu"
+      className="kds-context-menu min-w-[152px] overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--kds-floating-padding-menu)] shadow-[var(--shadow-floating)]"
       onClose={onClose}
       open
       positioning={{ mode: "point", x: contextMenu.x, y: contextMenu.y }}
     >
       <button
-        className="kds-context-menu-item"
+        className="kds-context-menu-item flex h-[var(--kds-menu-item-height)] w-full items-center gap-2.5 rounded-[var(--radius-sm)] px-3 text-left text-sm font-medium leading-[1.3] text-[var(--color-text-subtle)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]"
         onClick={() => onOpenDetail(contextMenu.orderId)}
         role="menuitem"
         type="button"
@@ -42,7 +42,7 @@ export function OrderContextMenu({
       </button>
       {canPin ? (
         <button
-          className="kds-context-menu-item"
+          className="kds-context-menu-item flex h-[var(--kds-menu-item-height)] w-full items-center gap-2.5 rounded-[var(--radius-sm)] px-3 text-left text-sm font-medium leading-[1.3] text-[var(--color-text-subtle)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]"
           onClick={() => onTogglePinned(contextMenu.orderId)}
           role="menuitem"
           type="button"
@@ -52,7 +52,7 @@ export function OrderContextMenu({
         </button>
       ) : null}
       <button
-        className="kds-context-menu-item danger"
+        className="kds-context-menu-item danger flex h-[var(--kds-menu-item-height)] w-full items-center gap-2.5 rounded-[var(--radius-sm)] px-3 text-left text-sm font-medium leading-[1.3] text-[var(--color-danger-text)] hover:bg-[var(--color-danger-bg)] hover:text-[var(--color-danger-text)]"
         onClick={() => onOpenRemove(contextMenu.orderId)}
         role="menuitem"
         type="button"

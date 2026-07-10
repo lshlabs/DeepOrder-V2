@@ -11,11 +11,13 @@ import { ChangePasswordModal } from "../features/kds/settings/components/ChangeP
 import { KdsTopbar } from "../features/kds/layout/components/KdsTopbar";
 import { SettingsPanel } from "../features/kds/settings/components/SettingsPanel";
 import { StaffPanel } from "../features/kds/staff/components/StaffPanel";
+import { StatsDatePicker } from "../features/kds/stats/components/StatsDatePicker";
 import { StatsPanel } from "../features/kds/stats/components/StatsPanel";
 import { MyTasksPanel } from "../features/kds/tasks/components/MyTasksPanel";
 import { ChatbotFab } from "../features/kds/support/components/ChatbotFab";
 import { SupportPanel } from "../features/kds/support/components/SupportPanel";
 import { useAssignedMenus } from "../features/kds/tasks/hooks/useAssignedMenus";
+import { useKdsStats } from "../features/kds/stats/hooks/useKdsStats";
 import { useKdsClock } from "../shared/hooks/useKdsClock";
 import { useKdsOrders } from "../features/kds/orders/hooks/useKdsOrders";
 import { useOrderOverlays } from "../features/kds/orders/hooks/useOrderOverlays";
@@ -91,6 +93,15 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
     showToast,
   });
   const {
+    loading: statsLoading,
+    refreshStats,
+    stats,
+  } = useKdsStats({
+    accessToken: session.accessToken,
+    onUnauthorized,
+    showToast,
+  });
+  const {
     changeStoreStatus,
     confirmStoreStatusChange,
     pauseMinutes,
@@ -147,6 +158,7 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
         refreshStoreContext(),
         refreshSettings(),
         refreshAssignedMenus(),
+        refreshStats(),
       ]).then(() => undefined)
     );
   }
@@ -170,7 +182,7 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
   const settingsDisabled = storeSettingsLoading || savingSettings;
 
   return (
-    <div className="kds-shell">
+    <div className="kds-shell flex h-dvh min-h-dvh overflow-hidden bg-[var(--color-bg)] md:h-screen md:min-h-screen">
       <KdsSidebar
         activeOrderCount={counts.NEW + counts.COOKING}
         activeTab={activeTab}
@@ -183,7 +195,7 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
         onTabChange={setActiveTab}
       />
 
-      <div className="kds-main">
+      <div className="kds-main flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:overflow-visible">
         <KdsTopbar
           activeTab={activeTab}
           archivingCompleted={archivingCompleted}
@@ -195,6 +207,7 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
           refreshing={refreshing}
           savingStoreStatus={savingStoreStatus}
           storeStatus={storeStatus}
+          rightContent={activeTab === "STATS" ? <StatsDatePicker /> : null}
           onArchiveClick={() => setClearDoneConfirm(true)}
           onCancelPendingPaused={revertPendingPausedStatus}
           onConfirmPaused={confirmStoreStatusChange}
@@ -208,7 +221,7 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
         />
 
         {counts.CANCELLED > 0 ? (
-          <div className="kds-notice-bar">취소 주문 {counts.CANCELLED}건은 보드에서 제외되어 집계로만 관리됩니다.</div>
+          <div className="kds-notice-bar border-b border-[var(--color-amber-border)] bg-[var(--color-amber-subtle)] px-4 py-[7px] text-xs font-medium text-[var(--color-amber)]">취소 주문 {counts.CANCELLED}건은 보드에서 제외되어 집계로만 관리됩니다.</div>
         ) : null}
 
         {activeTab === "MY_TASKS" ? (
@@ -229,7 +242,7 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
             <StaffPanel onUnauthorized={onUnauthorized} session={session} />
           </div>
         ) : activeTab === "STATS" ? (
-          <StatsPanel orders={orders} />
+          <StatsPanel loading={statsLoading} orders={orders} stats={stats} />
         ) : activeTab === "SETTINGS" ? (
           <div className="kds-panel-shell">
             <SettingsPanel

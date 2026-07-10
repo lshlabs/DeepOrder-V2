@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Plus, MoreVertical, X } from "lucide-react";
 
+import { Button } from "../../../../components/ui/button";
+import { Input } from "../../../../components/ui/input";
 import {
   apiCreateStaff,
   apiGetStaff,
@@ -174,10 +176,10 @@ export function StaffPanel({
           <h2 className="kds-panel-title">직원 관리</h2>
           <p className="kds-panel-subtitle">총 {staffList.length}명 · 활성 {activeCount}명</p>
         </div>
-        <button className="kds-btn-primary kds-btn-sm" disabled={saving} onClick={openAdd} type="button">
+        <Button className="kds-btn-primary kds-btn-sm h-8 gap-1.5 px-3 text-xs" disabled={saving} onClick={openAdd} type="button">
           <Plus size={12} aria-hidden="true" />
           직원 추가
-        </button>
+        </Button>
       </div>
 
       {formError && !modal ? <div className="banner error" role="alert">{formError}</div> : null}
@@ -190,8 +192,8 @@ export function StaffPanel({
             <thead className="align-middle">
               <tr>
                 <th>
-                  <span className="kds-staff-header-mobile">직원 정보</span>
-                  <span className="kds-staff-header-desktop">이름</span>
+                  <span className="kds-staff-header-mobile md:hidden">직원 정보</span>
+                  <span className="kds-staff-header-desktop hidden md:inline">이름</span>
                 </th>
                 <th>아이디</th>
                 <th style={{ textAlign: "center" }}>역할</th>
@@ -204,7 +206,7 @@ export function StaffPanel({
                 <tr key={member.id} className={!member.active ? "row-inactive" : ""}>
                   <td>
                     <div className="kds-table-cell-name">
-                      <div className="kds-staff-avatar-sm" aria-hidden="true">{member.name.slice(0, 1)}</div>
+                      <div className="kds-staff-avatar-sm hidden h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-[11px] font-bold text-white md:flex" aria-hidden="true">{member.name.slice(0, 1)}</div>
                       <div className="kds-table-cell-stack">
                         <span className="kds-table-cell-primary">{member.name}</span>
                         <span className="kds-table-cell-subtext kds-staff-subtext">
@@ -232,18 +234,19 @@ export function StaffPanel({
                   <td className="kds-table-actions-cell">
                     <div className="kds-table-actions">
                       <div className="kds-table-actions-inline">
-                        <button className="kds-btn-ghost kds-btn-xs" disabled={saving} onClick={() => openEdit(member)} type="button" aria-label="수정">
+                        <Button className="kds-btn-ghost kds-btn-xs h-[26px] border border-border bg-background px-2.5 text-[11px] font-medium text-[var(--color-text-subtle)] hover:bg-muted" disabled={saving} onClick={() => openEdit(member)} type="button" aria-label="수정" variant="outline">
                           <span className="kds-table-action-label">수정</span>
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           disabled={saving}
-                          className={`kds-btn-ghost kds-btn-xs${member.active ? " danger" : " green"}`}
+                          className={`kds-btn-ghost kds-btn-xs h-[26px] border border-border bg-background px-2.5 text-[11px] font-medium hover:bg-muted ${member.active ? "danger text-[var(--color-red)] hover:border-[var(--color-red-border)] hover:bg-[var(--color-red-subtle)]" : "green text-[var(--color-green)] hover:border-[var(--color-green-border)] hover:bg-[var(--color-green-subtle)]"}`}
                           onClick={() => setModal({ type: "deactivate", member })}
                           type="button"
                           aria-label={member.active ? "비활성화" : "활성화"}
+                          variant="outline"
                         >
                           <span className="kds-table-action-label">{member.active ? "비활성화" : "활성화"}</span>
-                        </button>
+                        </Button>
                       </div>
                       <div className={`kds-row-actions${actionMenuStaffId === member.id ? " open" : ""}`}>
                         <button
@@ -303,50 +306,51 @@ export function StaffPanel({
               </button>
             </div>
             <div className="kds-modal-body">
-              <div className="kds-settings-field">
-                <label className="kds-settings-label" htmlFor="staff-name">이름</label>
-                <input id="staff-name" type="text" value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="직원 이름" autoFocus />
+              <div className="kds-settings-field flex flex-col gap-1.5">
+                <label className="kds-settings-label text-xs font-medium text-muted-foreground" htmlFor="staff-name">이름</label>
+                <Input className="h-10" id="staff-name" type="text" value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="직원 이름" autoFocus />
               </div>
-              <div className="kds-settings-field">
-                <label className="kds-settings-label" htmlFor="staff-login-id">아이디</label>
-                <input id="staff-login-id" type="text" value={form.loginId} onChange={(e) => setForm((prev) => ({ ...prev, loginId: e.target.value }))} placeholder="example123" />
+              <div className="kds-settings-field mt-3 flex flex-col gap-1.5">
+                <label className="kds-settings-label text-xs font-medium text-muted-foreground" htmlFor="staff-login-id">아이디</label>
+                <Input className="h-10" id="staff-login-id" type="text" value={form.loginId} onChange={(e) => setForm((prev) => ({ ...prev, loginId: e.target.value }))} placeholder="example123" />
               </div>
-              <div className="kds-settings-field">
-                <label className="kds-settings-label">역할</label>
-                <div className="kds-segmented">
+              <div className="kds-settings-field mt-3 flex flex-col gap-1.5">
+                <label className="kds-settings-label text-xs font-medium text-muted-foreground">역할</label>
+                <div className="kds-segmented inline-flex rounded-md border border-border bg-muted p-0.5">
                   {(["직원", "매니저"] as const).map((label) => (
-                    <button key={label} className={`kds-segmented-btn${form.role === label ? " active" : ""}`} onClick={() => setForm((prev) => ({ ...prev, role: label }))} type="button">{label}</button>
+                    <button key={label} className={`kds-segmented-btn h-7 rounded-sm px-3 text-xs font-medium transition-colors ${form.role === label ? "active bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-background/70 hover:text-foreground"}`} onClick={() => setForm((prev) => ({ ...prev, role: label }))} type="button">{label}</button>
                   ))}
                 </div>
               </div>
               {modal.type === "edit" ? (
-                <div className="kds-settings-field">
-                  <div className="kds-pin-modal-row">
+                <div className="kds-settings-field mt-3 flex flex-col gap-1.5">
+                  <div className="kds-pin-modal-row flex items-center justify-between gap-3">
                     <div>
-                      <p className="kds-settings-hint">재발급된 PIN은 이 창에서만 표시됩니다.</p>
+                      <p className="kds-settings-hint text-xs text-muted-foreground">재발급된 PIN은 이 창에서만 표시됩니다.</p>
                     </div>
-                    <button
-                      className="kds-btn-ghost kds-btn-xs"
+                    <Button
+                      className="kds-btn-ghost kds-btn-xs h-[26px] border border-border bg-background px-2.5 text-[11px] font-medium text-[var(--color-text-subtle)] hover:bg-muted"
                       disabled={saving}
                       onClick={() => void reissuePin(modal.member)}
                       type="button"
+                      variant="outline"
                     >
                       PIN 재발급
-                    </button>
+                    </Button>
                   </div>
                   {revealedPinByStaffId[modal.member.id] ? (
-                    <div className="kds-pin-modal-value" role="status">
+                    <div className="kds-pin-modal-value mt-2 rounded-md border border-[rgba(234,88,12,0.2)] bg-[var(--color-accent-subtle)] px-3 py-2.5 text-center text-lg font-extrabold tracking-[0.12em] text-[var(--color-accent)]" role="status">
                       {revealedPinByStaffId[modal.member.id]}
                     </div>
                   ) : null}
                 </div>
               ) : null}
-              {modal.type === "add" ? <p className="kds-settings-hint">추가 후 4자리 PIN이 자동 발급됩니다.</p> : null}
-              {formError ? <p className="kds-settings-error">{formError}</p> : null}
+              {modal.type === "add" ? <p className="kds-settings-hint mt-3 text-xs text-muted-foreground">추가 후 4자리 PIN이 자동 발급됩니다.</p> : null}
+              {formError ? <p className="kds-settings-error mt-3 text-xs text-[var(--color-error-text)]">{formError}</p> : null}
             </div>
             <div className="kds-modal-foot">
-              <button className="kds-modal-btn secondary" onClick={() => setModal(null)} type="button">취소</button>
-              <button className="kds-modal-btn primary" disabled={saving} onClick={() => void saveStaff()} type="button">{saving ? "저장중…" : "저장"}</button>
+              <Button className="kds-modal-btn secondary" onClick={() => setModal(null)} type="button" variant="outline">취소</Button>
+              <Button className="kds-modal-btn primary" disabled={saving} onClick={() => void saveStaff()} type="button">{saving ? "저장중…" : "저장"}</Button>
             </div>
           </div>
         </div>
@@ -365,16 +369,16 @@ export function StaffPanel({
               <p className="kds-modal-desc">
                 <strong>{modal.member.name}</strong> 직원 계정이 생성되었습니다.
               </p>
-              <div className="kds-settings-field">
-                <p className="kds-settings-hint">발급된 PIN은 이 창에서만 표시됩니다.</p>
-                <div className="kds-pin-modal-value" role="status">
+              <div className="kds-settings-field mt-3 flex flex-col gap-1.5">
+                <p className="kds-settings-hint text-xs text-muted-foreground">발급된 PIN은 이 창에서만 표시됩니다.</p>
+                <div className="kds-pin-modal-value rounded-md border border-[rgba(234,88,12,0.2)] bg-[var(--color-accent-subtle)] px-3 py-2.5 text-center text-lg font-extrabold tracking-[0.12em] text-[var(--color-accent)]" role="status">
                   {modal.temporaryPin}
                 </div>
               </div>
-              {formError ? <p className="kds-settings-error">{formError}</p> : null}
+              {formError ? <p className="kds-settings-error mt-3 text-xs text-[var(--color-error-text)]">{formError}</p> : null}
             </div>
             <div className="kds-modal-foot">
-              <button className="kds-modal-btn primary" onClick={() => setModal(null)} type="button">확인</button>
+              <Button className="kds-modal-btn primary" onClick={() => setModal(null)} type="button">확인</Button>
             </div>
           </div>
         </div>
@@ -391,10 +395,10 @@ export function StaffPanel({
               </p>
             </div>
             <div className="kds-modal-foot">
-              <button className="kds-modal-btn secondary" onClick={() => setModal(null)} type="button">취소</button>
-              <button className={`kds-modal-btn${modal.member.active ? " danger" : " primary"}`} disabled={saving} onClick={() => void toggleActive(modal.member)} type="button">
+              <Button className="kds-modal-btn secondary" onClick={() => setModal(null)} type="button" variant="outline">취소</Button>
+              <Button className={`kds-modal-btn${modal.member.active ? " danger" : " primary"}`} disabled={saving} onClick={() => void toggleActive(modal.member)} type="button" variant={modal.member.active ? "destructive" : "default"}>
                 {saving ? "처리중…" : modal.member.active ? "비활성화" : "활성화"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

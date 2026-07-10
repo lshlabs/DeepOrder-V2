@@ -11,6 +11,7 @@ import type {
   HideOrderResponse,
   IdentifierAvailabilityResponse,
   KdsOrdersResponse,
+  KdsStatsResponse,
   KdsStoreContext,
   LoginRequest,
   OrderItemProgressResponse,
@@ -101,6 +102,12 @@ export async function apiChangePassword(accessToken: string, payload: ChangePass
 
 export async function apiGetKdsOrders(accessToken: string) {
   return request<KdsOrdersResponse>("/api/kds/orders", {
+    headers: createAuthHeaders(accessToken),
+  });
+}
+
+export async function apiGetKdsStats(accessToken: string) {
+  return request<KdsStatsResponse>("/api/kds/stats", {
     headers: createAuthHeaders(accessToken),
   });
 }

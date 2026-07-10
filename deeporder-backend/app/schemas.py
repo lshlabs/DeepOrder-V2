@@ -129,6 +129,64 @@ class KdsOrdersResponse(BaseModel):
     orders: list[OrderOut]
 
 
+class KdsStatsSummaryOut(BaseModel):
+    total_orders: int
+    completed_orders: int
+    completion_rate: float
+    revenue: int
+    average_completion_seconds: int | None = None
+    delayed_orders: int
+    peak_hour: str | None = None
+
+
+class KdsStatsComparisonBucketOut(BaseModel):
+    orders_delta: int | None = None
+    orders_delta_rate: float | None = None
+    revenue_delta: int | None = None
+    revenue_delta_rate: float | None = None
+    average_completion_seconds_delta: int | None = None
+
+
+class KdsStatsComparisonOut(BaseModel):
+    vs_yesterday: KdsStatsComparisonBucketOut
+    vs_7d_average: KdsStatsComparisonBucketOut
+
+
+class KdsStatsHourlyOut(BaseModel):
+    hour: str
+    orders: int
+    revenue: int
+    average_completion_seconds: int | None = None
+    delayed_orders: int
+
+
+class KdsStatsMenuOut(BaseModel):
+    menu_name: str
+    orders: int
+    revenue: int
+    average_completion_seconds: int | None = None
+    delayed_orders: int
+    yesterday_delta_rate: float | None = None
+    seven_day_average_delta_rate: float | None = None
+
+
+class KdsStatsKitchenOut(BaseModel):
+    on_time_rate: float | None = None
+    slowest_order_seconds: int | None = None
+    bottleneck_hour: str | None = None
+    bottleneck_menu: str | None = None
+
+
+class KdsStatsResponse(BaseModel):
+    date: str
+    summary: KdsStatsSummaryOut
+    comparison: KdsStatsComparisonOut
+    hourly: list[KdsStatsHourlyOut]
+    menus: list[KdsStatsMenuOut]
+    kitchen: KdsStatsKitchenOut
+    insights: list[str]
+
+
 class UpdateOrderStatusIn(BaseModel):
     status: Literal["NEW", "COOKING", "DONE", "CANCELLED"]
 
