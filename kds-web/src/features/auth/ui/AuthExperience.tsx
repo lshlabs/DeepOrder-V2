@@ -1,4 +1,5 @@
 import { LoadingState } from "@/components/blocks";
+import { Button } from "@/components/ui/button";
 
 import type {
   AuthPendingInfo,
@@ -26,6 +27,34 @@ export function AuthExperience({
   onRegisterSuccess,
   onBackFromPending,
 }: AuthExperienceProps) {
+  // [TEST] Skip auth button - remove entire block for production
+  const handleSkipAuth = () => {
+    const mockResponse: AuthResponse = {
+      accessToken: "test-token-" + Date.now(),
+      refreshToken: "test-refresh-token",
+      autoLogin: false,
+      user: {
+        id: 1,
+        loginId: "admin123",
+        name: "테스트 관리자",
+        role: "STORE_OWNER",
+        accountType: "OWNER",
+        approvalStatus: "APPROVED",
+      },
+      store: {
+        id: 1,
+        storeId: "store-test-001",
+        storeName: "테스트 매장",
+        phone: "02-1234-5678",
+        zipNo: "12345",
+        roadAddress: "서울시 강남구",
+        jibunAddress: "서울시 강남구",
+        addressDetail: "테스트",
+        approvalStatus: "APPROVED",
+      },
+    };
+    onLoginSuccess(mockResponse);
+  };
   if (state === "booting") {
     return (
       <AuthShell>
@@ -53,11 +82,25 @@ export function AuthExperience({
 
   return (
     <AuthShell>
-      <AuthForms
-        initialError={bootError}
-        onLoginSuccess={onLoginSuccess}
-        onRegisterSuccess={onRegisterSuccess}
-      />
+      <div className="space-y-4">
+        <AuthForms
+          initialError={bootError}
+          onLoginSuccess={onLoginSuccess}
+          onRegisterSuccess={onRegisterSuccess}
+        />
+        {/* [TEST] Skip auth button - remove entire <div> for production */}
+        {import.meta.env.DEV && (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+            <Button
+              onClick={handleSkipAuth}
+              variant="outline"
+              className="w-full border-destructive text-destructive hover:bg-destructive/10"
+            >
+              [테스트] 인증 건너뛰기
+            </Button>
+          </div>
+        )}
+      </div>
     </AuthShell>
   );
 }
