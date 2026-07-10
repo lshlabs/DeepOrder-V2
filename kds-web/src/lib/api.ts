@@ -1,25 +1,18 @@
 import type {
   ArchiveCompletedOrdersResponse,
   AssignedMenuListResponse,
-  AuthResponse,
   ChangePasswordRequest,
   ChangePasswordResponse,
   CreateStaffRequest,
   CreateAssignedMenuRequest,
   CreateSupportConversationRequest,
-  CurrentUserResponse,
   HideOrderResponse,
-  IdentifierAvailabilityResponse,
   KdsOrdersResponse,
   KdsStatsResponse,
   KdsStoreContext,
-  LoginRequest,
   OrderItemProgressResponse,
   OrderStatus,
-  RefreshResponse,
   RegenerateStaffPinResponse,
-  RegisterRequest,
-  RegisterResponse,
   Staff,
   StaffListResponse,
   StaffWithTemporaryPin,
@@ -50,46 +43,6 @@ export class ApiError extends Error {
     this.name = "ApiError";
     this.status = status;
   }
-}
-
-export async function apiLogin(payload: LoginRequest) {
-  return request<AuthResponse>("/api/auth/login", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-}
-
-export async function apiRegister(payload: RegisterRequest) {
-  return request<RegisterResponse>("/api/auth/register", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-}
-
-export async function apiCheckIdentifier(loginId: string) {
-  return request<IdentifierAvailabilityResponse>(
-    `/api/auth/check-identifier?loginId=${encodeURIComponent(loginId)}`,
-  );
-}
-
-export async function apiRefresh(refreshToken: string) {
-  return request<RefreshResponse>("/api/auth/refresh", {
-    method: "POST",
-    body: JSON.stringify({ refreshToken }),
-  });
-}
-
-export async function apiLogout(refreshToken: string) {
-  await request<void>("/api/auth/logout", {
-    method: "POST",
-    body: JSON.stringify({ refreshToken }),
-  });
-}
-
-export async function apiGetCurrentUser(accessToken: string) {
-  return request<CurrentUserResponse>("/api/auth/me", {
-    headers: createAuthHeaders(accessToken),
-  });
 }
 
 export async function apiChangePassword(accessToken: string, payload: ChangePasswordRequest) {
@@ -382,13 +335,13 @@ export async function apiCloseSupportConversation(accessToken: string, conversat
   });
 }
 
-function createAuthHeaders(accessToken: string) {
+export function createAuthHeaders(accessToken: string) {
   return {
     Authorization: `Bearer ${accessToken}`,
   };
 }
 
-async function request<T>(path: string, init: RequestInit = {}) {
+export async function request<T>(path: string, init: RequestInit = {}) {
   const response = await fetch(`${API_URL}${path}`, {
     ...init,
     headers: {

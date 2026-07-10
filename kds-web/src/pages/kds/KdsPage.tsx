@@ -25,7 +25,7 @@ import { useAssignedMenus } from "@/features/kds/tasks/hooks/useAssignedMenus";
 import { KdsToast } from "@/shared/components/KdsToast";
 import { useKdsClock } from "@/shared/hooks/useKdsClock";
 import { useToast } from "@/shared/hooks/useToast";
-import type { AuthSession } from "@/types";
+import type { AuthSession } from "@/features/auth";
 
 type KdsPageProps = {
   session: AuthSession;

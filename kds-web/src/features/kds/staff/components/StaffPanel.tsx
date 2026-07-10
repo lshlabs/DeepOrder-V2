@@ -12,7 +12,8 @@ import {
 } from "../../../../lib/api";
 import { ActionMenu } from "../../../../shared/components/floating/ActionMenu";
 import { requestWithReauth } from "../../../../shared/lib/requestWithReauth";
-import type { AuthSession, Staff } from "../../../../types";
+import type { AuthSession } from "@/features/auth";
+import type { Staff } from "../../../../types";
 
 type StaffModalMode =
   | { type: "add" }

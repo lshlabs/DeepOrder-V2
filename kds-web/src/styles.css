@@ -1,7 +1,6 @@
 /* Global token/base layers must stay ahead of feature CSS while preflight is disabled. */
 @import "./styles/tokens.css";
 @import "./styles/base.css";
-@import "./pages/auth.css";
 @import "./features/kds/store-status/store-status.css";
 @import "./features/kds/layout/kds-actions.css";
 @import "./features/kds/orders/orders.css";

@@ -11,7 +11,7 @@ import {
   apiRequestSupportHandoff,
   apiSendSupportMessage,
 } from "../../../../lib/api";
-import { loadStoredAccessToken } from "../../../../lib/auth";
+import { loadStoredAccessToken } from "@/features/auth";
 import type { SupportConversationResponse, SupportMessageResponse } from "../../../../types";
 import type {
   ChatMessage,

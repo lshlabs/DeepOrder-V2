@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import { KDS_SIDEBAR_SECTIONS, getKdsSection } from "@/app/navigation/kds-sections";
 import type { KdsSectionId } from "@/app/navigation/types";
 import { Button } from "@/components/ui/button";
-import type { AuthSession } from "@/types";
+import type { AuthSession } from "@/features/auth";
 
 import { KdsAccountMenu } from "./KdsAccountMenu";
 
