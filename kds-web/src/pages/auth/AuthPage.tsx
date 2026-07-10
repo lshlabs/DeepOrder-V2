@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ChefHat, Eye, EyeOff } from "lucide-react";
 
-import { Button, Input } from "../components/ui";
-import { API_ORIGIN, ApiError, apiCheckIdentifier, apiLogin, apiRegister } from "../lib/api";
+import { Button, Input } from "@/components/ui";
+import { API_ORIGIN, ApiError, apiCheckIdentifier, apiLogin, apiRegister } from "@/lib/api";
 import type {
   AuthResponse,
   AuthStore,
@@ -10,7 +10,7 @@ import type {
   LoginRequest,
   RegisterRequest,
   RegisterResponse,
-} from "../types";
+} from "@/types";
 
 type AuthPageProps = {
   onLoginSuccess: (response: AuthResponse) => void;
