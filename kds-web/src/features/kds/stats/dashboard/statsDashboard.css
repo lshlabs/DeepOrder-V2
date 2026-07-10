@@ -246,8 +246,6 @@
   outline: none;
 }
 
-@tailwind utilities;
-
 /* Keep utility border width inside the scoped reset while preflight stays disabled. */
 .kds-stats-dashboard :where(.border) {
   border-style: solid;
