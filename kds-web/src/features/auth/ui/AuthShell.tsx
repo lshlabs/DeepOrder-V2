@@ -1,7 +1,13 @@
 import type { ReactNode } from "react";
-import { ChefHat } from "lucide-react";
+import { BarChart3, Bell, ChefHat, Clock } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+
+const AUTH_HIGHLIGHTS = [
+  { icon: Bell, title: "실시간 주문 접수", desc: "여러 채널의 주문을 한 화면에서" },
+  { icon: Clock, title: "조리 시간 관리", desc: "지연 주문을 놓치지 않도록" },
+  { icon: BarChart3, title: "AI 매출 분석", desc: "데이터로 매장 운영 최적화" },
+];
 
 type AuthShellProps = {
   children: ReactNode;
@@ -33,6 +39,23 @@ export function AuthShell({ children, contentClassName }: AuthShellProps) {
               실시간 주문 접수부터 AI 분석까지. 매장 운영에 꼭 필요한 것만 담았습니다.
             </p>
           </div>
+
+          <ul className="space-y-3">
+            {AUTH_HIGHLIGHTS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <li key={item.title} className="flex items-start gap-3.5">
+                  <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-background/10 text-primary">
+                    <Icon className="size-4" aria-hidden="true" />
+                  </span>
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-semibold text-background">{item.title}</p>
+                    <p className="text-xs leading-5 text-background/55">{item.desc}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         </div>
 
         <p className="text-xs text-background/55">© 2025 DeepOrder. All rights reserved.</p>
