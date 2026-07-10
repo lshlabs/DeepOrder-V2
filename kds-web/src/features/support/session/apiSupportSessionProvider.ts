@@ -10,9 +10,9 @@ import {
   apiMarkSupportRead,
   apiRequestSupportHandoff,
   apiSendSupportMessage,
-} from "../../../../lib/api";
+} from "@/lib/api";
 import { loadStoredAccessToken } from "@/features/auth";
-import type { SupportConversationResponse, SupportMessageResponse } from "../../../../types";
+import type { SupportConversationResponse, SupportMessageResponse } from "@/types";
 import type {
   ChatMessage,
   ChatbotSessionState,

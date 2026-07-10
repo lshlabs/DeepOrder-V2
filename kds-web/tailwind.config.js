@@ -66,11 +66,21 @@ export default {
           "0%": { opacity: "0.75", transform: "scale(1)" },
           "100%": { opacity: "0", transform: "scale(2.2)" },
         },
+        "floating-enter": {
+          from: { opacity: "0", transform: "translateY(12px) scale(0.98)" },
+          to: { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        "typing-bounce": {
+          "0%, 60%, 100%": { opacity: "0.35", transform: "translateY(0)" },
+          "30%": { opacity: "1", transform: "translateY(-3px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "status-ping": "status-ping 1s cubic-bezier(0.31, 0.1, 0.08, 0.96) infinite",
+        "floating-enter": "floating-enter 180ms ease-out",
+        "typing-bounce": "typing-bounce 1s ease-in-out infinite",
       },
     },
   },

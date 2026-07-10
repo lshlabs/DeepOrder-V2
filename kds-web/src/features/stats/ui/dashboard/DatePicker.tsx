@@ -4,14 +4,14 @@ import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 
-import { Button } from "../../../../../components/ui/button";
-import { Calendar } from "../../../../../components/ui/calendar";
-import { cn } from "../../../../../lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../../../../../components/ui/popover";
+} from "@/components/ui/popover";
 
 export type PickerMode = "single" | "range";
 
@@ -77,28 +77,32 @@ export function DatePicker({
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <div className="flex border-b border-border">
-          <button
-            onClick={() => onModeChange?.("single")}
+          <Button
             className={cn(
-              "flex-1 px-4 py-2.5 text-sm font-medium transition-colors",
+              "h-10 flex-1 rounded-none border-0 border-b-2",
               mode === "single"
-                ? "border-b-2 border-primary bg-primary/10 text-primary"
-                : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                ? "border-primary bg-primary/10 text-primary hover:bg-primary/10"
+                : "border-transparent text-muted-foreground",
             )}
+            onClick={() => onModeChange?.("single")}
+            type="button"
+            variant="ghost"
           >
             단일 선택
-          </button>
-          <button
-            onClick={() => onModeChange?.("range")}
+          </Button>
+          <Button
             className={cn(
-              "flex-1 px-4 py-2.5 text-sm font-medium transition-colors",
+              "h-10 flex-1 rounded-none border-0 border-b-2",
               mode === "range"
-                ? "border-b-2 border-primary bg-primary/10 text-primary"
-                : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                ? "border-primary bg-primary/10 text-primary hover:bg-primary/10"
+                : "border-transparent text-muted-foreground",
             )}
+            onClick={() => onModeChange?.("range")}
+            type="button"
+            variant="ghost"
           >
             기간 선택
-          </button>
+          </Button>
         </div>
 
         {mode === "single" ? (

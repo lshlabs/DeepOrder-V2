@@ -2,7 +2,7 @@ import {
   apiCloseSupportConversation,
   apiGetCurrentSupportConversation,
 } from "@/lib/api";
-import { clearChatbotSession } from "@/features/kds/support/hooks/useChatbotSession";
+import { clearChatbotSession } from "@/features/support";
 import { useAuthSession } from "@/features/auth";
 import { AuthPage } from "@/pages/auth/AuthPage";
 import { KdsPage } from "@/pages/kds/KdsPage";

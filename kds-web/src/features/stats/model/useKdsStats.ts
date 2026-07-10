@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { apiGetKdsStats } from "../../../../lib/api";
-import { requestWithReauth } from "../../../../shared/lib/requestWithReauth";
+import { getKdsStats } from "../api/get-kds-stats";
 import type { ShowToast } from "@/lib/notifications";
-import type { KdsStatsResponse } from "../../../../types";
+import type { KdsStatsResponse } from "@/types";
 
 type UseKdsStatsParams = {
   accessToken: string;
@@ -28,7 +27,7 @@ export function useKdsStats({
       setLoading(false);
       return;
     }
-    const data = await requestWithReauth(accessToken, onUnauthorized, apiGetKdsStats);
+    const data = await getKdsStats(accessToken, onUnauthorized);
     setStats(data);
   }, [accessToken, onUnauthorized]);
 

@@ -1,6 +1,6 @@
 import { TrendingUp, TrendingDown, Minus, ShoppingCart, DollarSign, CheckCircle, Clock, AlertTriangle, Flame } from 'lucide-react';
-import { Card } from "../../../../../components/ui/card";
-import { kpiData } from '../data/mock-data';
+import { Card } from "@/components/ui/card";
+import { kpiData } from '../../data/mock-data';
 
 const iconMap: Record<string, React.ReactNode> = {
   '주문 수': <ShoppingCart className="h-5 w-5" />,
@@ -44,7 +44,7 @@ export function KpiCards() {
           className="p-4 bg-card border-border/50 hover:border-primary/30 transition-colors duration-200"
         >
           <div className="flex items-center gap-2 mb-3">
-            <div className="p-1.5 rounded-md bg-[var(--color-accent-subtle)] text-[var(--color-accent)]">
+            <div className="p-1.5 rounded-md bg-primary/10 text-primary">
               {iconMap[kpi.label]}
             </div>
             <span className="text-xs text-muted-foreground font-medium">

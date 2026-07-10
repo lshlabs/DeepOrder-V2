@@ -11,12 +11,9 @@ import { useKdsOrders } from "@/features/kds/orders/hooks/useKdsOrders";
 import { useOrderOverlays } from "@/features/kds/orders/hooks/useOrderOverlays";
 import { ChangePasswordDialog, SettingsPage, useKdsSettings } from "@/features/settings";
 import { StaffPage } from "@/features/staff";
-import { StatsDatePicker } from "@/features/kds/stats/components/StatsDatePicker";
-import { StatsPanel } from "@/features/kds/stats/components/StatsPanel";
-import { useKdsStats } from "@/features/kds/stats/hooks/useKdsStats";
+import { StatsDatePicker, StatsPage, useKdsStats } from "@/features/stats";
 import { StoreStatusControl, useStoreContext } from "@/features/store-status";
-import { ChatbotFab } from "@/features/kds/support/components/ChatbotFab";
-import { SupportPanel } from "@/features/kds/support/components/SupportPanel";
+import { ChatbotFab, SupportPage } from "@/features/support";
 import { TasksPage, useAssignedMenus } from "@/features/tasks";
 import { useClock } from "@/lib/date/use-clock";
 import { showToast } from "@/lib/notifications";
@@ -298,7 +295,7 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
       ) : activeTab === "STAFF" && isManager ? (
           <StaffPage onUnauthorized={onUnauthorized} session={session} />
       ) : activeTab === "STATS" ? (
-        <StatsPanel loading={statsLoading} orders={orders} stats={stats} />
+        <StatsPage loading={statsLoading} orders={orders} stats={stats} />
       ) : activeTab === "SETTINGS" ? (
           <SettingsPage
             disabled={settingsDisabled}
@@ -308,7 +305,7 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
           />
       ) : activeTab === "SUPPORT" ? (
         <div className="kds-panel-shell">
-          <SupportPanel />
+          <SupportPage />
           <ChatbotFab />
         </div>
       ) : (

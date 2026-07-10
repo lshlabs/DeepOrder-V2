@@ -1,8 +1,8 @@
 import { AlertTriangle, CheckCircle2, Info } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { Card } from "../../../../../components/ui/card";
-import { insights } from "../data/mock-data";
+import { Card } from "@/components/ui/card";
+import { insights } from "../../data/mock-data";
 
 const iconMap: Record<string, ReactNode> = {
   info: <Info className="h-4 w-4 text-blue-400" />,

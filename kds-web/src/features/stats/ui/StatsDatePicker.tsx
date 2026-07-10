@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 
-import { DatePicker, type PickerMode } from "../dashboard/components/DatePicker";
+import { DatePicker, type PickerMode } from "./dashboard/DatePicker";
 
 export function StatsDatePicker() {
   const [mode, setMode] = useState<PickerMode>("single");
@@ -16,12 +16,12 @@ export function StatsDatePicker() {
 
   return (
     <DatePicker
-      mode={mode}
-      onModeChange={handleModeChange}
       date={date}
-      onDateChange={setDate}
       dateRange={range}
+      mode={mode}
+      onDateChange={setDate}
       onDateRangeChange={setRange}
+      onModeChange={handleModeChange}
       placeholder="클릭하여 날짜를 선택하세요"
     />
   );

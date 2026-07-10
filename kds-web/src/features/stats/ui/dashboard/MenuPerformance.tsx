@@ -1,8 +1,8 @@
 import { TrendingDown, TrendingUp } from "lucide-react";
 
-import { Badge } from "../../../../../components/ui/badge";
-import { Card } from "../../../../../components/ui/card";
-import { menuPerformance } from "../data/mock-data";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { menuPerformance } from "../../data/mock-data";
 
 export function MenuPerformance() {
   const maxQuantity = Math.max(...menuPerformance.map((m) => m.quantity));

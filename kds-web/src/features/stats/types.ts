@@ -1,4 +1,4 @@
-import type { KdsStatsResponse, Order } from "../../../../types";
+import type { KdsStatsResponse, Order } from "@/types";
 
 export type StatsDashboardProps = {
   loading?: boolean;

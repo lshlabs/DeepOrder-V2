@@ -1,5 +1,5 @@
-import { Card } from "../../../../../components/ui/card";
-import { kitchenStatus, processingTimeData } from '../data/mock-data';
+import { Card } from "@/components/ui/card";
+import { kitchenStatus, processingTimeData } from '../../data/mock-data';
 import { CheckCircle2, XCircle, CircleChevronRight, CircleAlert } from 'lucide-react';
 
 const statusIcons: Record<string, React.ReactNode> = {
