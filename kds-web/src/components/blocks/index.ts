@@ -14,3 +14,5 @@ export { PageSection, pageSectionContentVariants } from "./PageSection";
 export type { PageSectionProps } from "./PageSection";
 export { StatusBadge, statusBadgeVariants } from "./StatusBadge";
 export type { StatusBadgeProps } from "./StatusBadge";
+
+export { ActionMenu } from "./ActionMenu";

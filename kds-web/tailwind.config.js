@@ -62,10 +62,15 @@ export default {
             height: "0",
           },
         },
+        "status-ping": {
+          "0%": { opacity: "0.75", transform: "scale(1)" },
+          "100%": { opacity: "0", transform: "scale(2.2)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "status-ping": "status-ping 1s cubic-bezier(0.31, 0.1, 0.08, 0.96) infinite",
       },
     },
   },

@@ -1,75 +1,86 @@
-import { useRef, useState } from "react";
 import { LogOut } from "lucide-react";
 
-import { PopoverPanel } from "@/shared/components/floating/PopoverPanel";
-import type { AuthSession } from "@/features/auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+export type KdsAccountIdentity = {
+  loginId: string;
+  storeName: string;
+  userName: string;
+};
 
 type KdsAccountMenuProps = {
+  account: KdsAccountIdentity;
   loggingOut: boolean;
-  session: AuthSession;
-  sidebarOpen: boolean;
+  expanded?: boolean;
   onLogout: () => Promise<void>;
 };
 
 export function KdsAccountMenu({
   loggingOut,
-  session,
-  sidebarOpen,
+  account,
+  expanded = false,
   onLogout,
 }: KdsAccountMenuProps) {
-  const [open, setOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const initials = (session.user.name ?? session.store.storeName ?? "?").slice(0, 2).toUpperCase();
-
-  async function handleLogout() {
-    setOpen(false);
-    await onLogout();
-  }
+  const initials = (account.storeName || account.userName || "K")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
-    <div className="kds-sidebar-account relative border-t border-[var(--color-border)] px-[5px] py-1.5">
-      <PopoverPanel
-        ariaLabel="계정 정보"
-        className="kds-account-popover w-[min(232px,calc(100vw-24px))] min-w-[min(220px,calc(100vw-24px))] max-w-[min(240px,calc(100vw-24px))] rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--kds-floating-padding-panel)] shadow-[var(--shadow-floating)]"
-        onClose={() => setOpen(false)}
-        open={open}
-        positioning={open ? { align: "end", anchorEl, side: "top" } : null}
-        role="dialog"
-      >
-        <div className="kds-account-popover-surface flex flex-col gap-3">
-          <div className="kds-account-popover-info flex items-center gap-[9px]">
-            <div className="kds-account-avatar large flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-[13px] font-bold text-white">{initials}</div>
-            <div>
-              <p className="kds-account-name text-sm font-semibold text-[var(--color-text)]">{session.user.name ?? session.store.storeName}</p>
-              <p className="kds-account-login-id mt-px overflow-hidden text-ellipsis whitespace-nowrap text-[13px] text-[var(--color-text-muted)]">{session.user.loginId}</p>
-            </div>
-          </div>
-          <div className="kds-account-popover-divider h-px bg-[var(--color-border)]" />
-          <button
-            className="kds-account-popover-item signout flex h-[var(--kds-menu-item-height)] w-full items-center gap-2.5 rounded-[var(--radius-sm)] px-3 text-left text-sm font-medium text-[var(--color-error-text)] hover:bg-[var(--color-error-bg)]"
-            disabled={loggingOut}
-            onClick={() => void handleLogout()}
-            type="button"
-          >
-            <LogOut size={18} aria-hidden="true" />
-            {loggingOut ? "로그아웃 중…" : "로그아웃"}
-          </button>
-        </div>
-      </PopoverPanel>
-
-      <button
-        className={`kds-account-trigger flex h-9 w-full items-center gap-[9px] rounded-[var(--radius-md)] px-[9px] ${sidebarOpen ? "justify-start" : "justify-center"} ${open ? "active bg-[var(--color-surface-2)]" : "bg-transparent hover:bg-[var(--color-surface-2)]"}`}
-        onClick={() => setOpen((value) => !value)}
-        onPointerDown={(event) => setAnchorEl(event.currentTarget)}
-        ref={triggerRef}
-        type="button"
-        title={session.store.storeName}
-        aria-expanded={open}
-      >
-        <div className="kds-account-avatar flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-[11px] font-bold text-white">{initials}</div>
-        {sidebarOpen ? <span className="kds-account-trigger-name overflow-hidden text-ellipsis whitespace-nowrap text-[13px] font-medium text-[var(--color-text)]">{session.store.storeName}</span> : null}
-      </button>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          aria-label={`${account.storeName} 계정 메뉴`}
+          className={cn(
+            "h-10 w-full gap-2 px-2",
+            expanded ? "justify-start" : "justify-center",
+          )}
+          title={account.storeName}
+          type="button"
+          variant="ghost"
+        >
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+            {initials}
+          </span>
+          {expanded ? (
+            <span className="min-w-0 truncate text-sm font-medium">
+              {account.storeName}
+            </span>
+          ) : null}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-64" side="right" sideOffset={8}>
+        <DropdownMenuLabel className="flex items-center gap-3 py-2">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+            {initials}
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-semibold">
+              {account.userName || account.storeName}
+            </span>
+            <span className="block truncate text-xs font-normal text-muted-foreground">
+              {account.loginId}
+            </span>
+          </span>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+          disabled={loggingOut}
+          onSelect={() => void onLogout()}
+        >
+          <LogOut aria-hidden="true" />
+          {loggingOut ? "로그아웃 중…" : "로그아웃"}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

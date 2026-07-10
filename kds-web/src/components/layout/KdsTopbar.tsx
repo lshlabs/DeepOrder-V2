@@ -1,5 +1,5 @@
-import { useEffect, useState, type ReactNode } from "react";
-import { ClockArrowDown, ClockArrowUp, Menu, RefreshCw, Trash2, X } from "lucide-react";
+import type { ReactNode } from "react";
+import { ClockArrowDown, ClockArrowUp, Menu, RefreshCw, Trash2 } from "lucide-react";
 
 import {
   KDS_TOPBAR_SECTIONS,
@@ -7,6 +7,16 @@ import {
   isKdsWorkSection,
 } from "@/app/navigation/kds-sections";
 import type { KdsSectionId } from "@/app/navigation/types";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 type OrderSortDirection = "newest-first" | "oldest-first";
 
@@ -41,18 +51,11 @@ export function KdsTopbar({
   onSortToggle,
   onTabChange,
 }: KdsTopbarProps) {
-  const [fabOpen, setFabOpen] = useState(false);
   const activeSection = getKdsSection(activeTab);
   const isWorkTab = isKdsWorkSection(activeTab);
   const showOrderControls = activeTab === "RECEIVED" || activeTab === "DONE";
   const showArchiveAction = activeTab === "DONE" && doneCount > 0;
-
-  useEffect(() => {
-    setFabOpen(false);
-  }, [activeTab]);
-
-  const iconButtonBase =
-    "kds-icon-btn h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-transparent text-[var(--color-text-muted)] transition-[color,border-color,background] hover:border-[var(--color-border-hover)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)] disabled:cursor-default disabled:opacity-40";
+  const busy = loading || refreshing;
 
   function getSectionCount(sectionId: KdsSectionId) {
     if (sectionId === "RECEIVED") return receivedCount;
@@ -62,173 +65,149 @@ export function KdsTopbar({
 
   return (
     <>
-      <header
-        className={`kds-topbar kds-topbar--${activeTab.toLowerCase()} relative flex h-12 shrink-0 items-center justify-between gap-3 border-b border-[var(--color-border)] bg-[var(--color-surface)] px-0 md:px-[14px]`}
-      >
-        <div className="kds-topbar-left hidden shrink-0 items-center gap-2 md:flex">
-          {isWorkTab && renderStoreStatusControl ? (
-            <div className="kds-topbar-status-slot md:inline-flex">
-              {renderStoreStatusControl()}
-            </div>
-          ) : null}
+      <header className="relative flex h-12 shrink-0 items-center justify-between gap-3 border-b bg-card px-2 md:px-4">
+        <div className="hidden shrink-0 items-center gap-2 md:flex">
+          {isWorkTab && renderStoreStatusControl ? renderStoreStatusControl() : null}
         </div>
 
         {isWorkTab ? (
           <div
-            className="kds-topbar-tabs absolute left-[42px] right-0 flex h-full items-center md:left-1/2 md:right-auto md:h-auto md:-translate-x-1/2"
+            className="absolute left-11 right-0 flex h-full items-stretch md:left-1/2 md:right-auto md:h-auto md:-translate-x-1/2 md:items-center"
             role="tablist"
           >
             {KDS_TOPBAR_SECTIONS.map((section) => {
               const count = getSectionCount(section.id);
               const active = activeTab === section.id;
-
               return (
-                <button
+                <Button
                   aria-selected={active}
-                  className={`kds-tab flex h-12 min-w-0 flex-1 items-center justify-center gap-1.5 border-b-2 border-b-transparent px-2.5 text-xs font-medium text-[var(--color-text-muted)] transition-[color,border-color] hover:text-[var(--color-text-subtle)] md:h-auto md:flex-none md:justify-start md:px-[14px] md:text-[13px] ${active ? "active border-b-[var(--color-accent)] font-semibold text-[var(--color-text)]" : ""}`}
+                  className={cn(
+                    "h-12 min-w-0 flex-1 rounded-none border-b-2 border-transparent px-3 text-xs md:h-9 md:flex-none md:text-sm",
+                    active
+                      ? "border-primary bg-transparent font-semibold text-foreground hover:bg-muted/50"
+                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                  )}
                   key={section.id}
                   onClick={() => onTabChange(section.id)}
                   role="tab"
                   type="button"
+                  variant="ghost"
                 >
                   {section.label}
                   {count > 0 ? (
-                    <span
-                      className={`kds-tab-count inline-flex min-w-5 items-center justify-center rounded-full px-[5px] text-[11px] font-bold ${active ? "bg-[var(--color-accent-subtle)] text-[var(--color-accent)]" : "bg-[var(--color-surface-2)] text-[var(--color-text-muted)]"}`}
+                    <Badge
+                      className={cn(
+                        "ml-1 min-w-5 justify-center px-1.5",
+                        active ? "bg-primary/10 text-primary hover:bg-primary/10" : "bg-muted text-muted-foreground hover:bg-muted",
+                      )}
+                      variant="secondary"
                     >
                       {count}
-                    </span>
+                    </Badge>
                   ) : null}
-                </button>
+                </Button>
               );
             })}
           </div>
         ) : (
-          <div className="kds-topbar-page-title absolute left-1/2 -translate-x-1/2 text-sm font-semibold tracking-[-0.2px] text-[var(--color-text)]">
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-sm font-semibold">
             {activeSection.label}
-          </div>
+          </h1>
         )}
 
-        <div className="kds-topbar-right hidden shrink-0 items-center gap-1.5 md:flex">
+        <div className="hidden shrink-0 items-center gap-1.5 md:flex">
           {rightContent}
           {showArchiveAction ? (
-            <button
+            <Button
               aria-label="완료 주문 내역 정리"
-              className={`${iconButtonBase} kds-topbar-action-btn md:inline-flex`}
               disabled={archivingCompleted}
               onClick={onArchiveClick}
+              size="icon"
               title="완료 주문 정리"
               type="button"
+              variant="outline"
             >
-              <Trash2 aria-hidden="true" size={15} />
-            </button>
+              <Trash2 aria-hidden="true" className="size-4" />
+            </Button>
           ) : null}
           {showOrderControls ? (
             <>
-              <button
+              <Button
                 aria-label={
                   orderSortDirection === "newest-first"
                     ? "현재 최신 주문 우선, 클릭하여 과거 주문 우선으로 변경"
                     : "현재 과거 주문 우선, 클릭하여 최신 주문 우선으로 변경"
                 }
-                className={`${iconButtonBase} kds-topbar-action-btn md:inline-flex`}
                 onClick={onSortToggle}
+                size="icon"
                 title={orderSortDirection === "newest-first" ? "최신 주문 우선" : "과거 주문 우선"}
                 type="button"
+                variant="outline"
               >
                 {orderSortDirection === "newest-first" ? (
-                  <ClockArrowDown aria-hidden="true" size={15} />
+                  <ClockArrowDown aria-hidden="true" className="size-4" />
                 ) : (
-                  <ClockArrowUp aria-hidden="true" size={15} />
+                  <ClockArrowUp aria-hidden="true" className="size-4" />
                 )}
-              </button>
-              <button
+              </Button>
+              <Button
                 aria-label="주문 새로고침"
-                className={`${iconButtonBase} kds-refresh-btn md:inline-flex${loading || refreshing ? " spinning" : ""}`}
-                disabled={loading || refreshing}
+                disabled={busy}
                 onClick={() => void onRefresh()}
+                size="icon"
                 type="button"
+                variant="outline"
               >
-                <RefreshCw
-                  aria-hidden="true"
-                  className={loading || refreshing ? "animate-[kds-spin_0.7s_linear_infinite]" : ""}
-                  size={15}
-                />
-              </button>
+                <RefreshCw aria-hidden="true" className={cn("size-4", busy && "animate-spin")} />
+              </Button>
             </>
           ) : null}
         </div>
       </header>
 
       {isWorkTab ? (
-        <div
-          className={`kds-mobile-fab fixed bottom-[22px] right-4 z-[260] block md:hidden${fabOpen ? " open" : ""}`}
-        >
-          {fabOpen ? (
-            <button
-              aria-label="주문 작업 메뉴 닫기"
-              className="kds-mobile-fab-overlay fixed inset-0 z-0 bg-transparent p-0"
-              onClick={() => setFabOpen(false)}
-              type="button"
-            />
-          ) : null}
-          {fabOpen ? (
-            <div
-              aria-label="주문 작업"
-              className="kds-mobile-fab-menu absolute bottom-[68px] right-0 z-20 flex min-w-[184px] max-w-[calc(100vw-32px)] flex-col gap-1.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-2 shadow-[var(--shadow-floating-elevated)]"
-              role="group"
-            >
+        <div className="fixed bottom-5 right-4 z-40 md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button aria-label="주문 작업 메뉴" className="size-14 rounded-full shadow-lg" size="icon">
+                <Menu aria-hidden="true" className="size-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-60" side="top" sideOffset={10}>
               {renderStoreStatusControl ? (
-                <div className="kds-mobile-fab-status">
-                  {renderStoreStatusControl()}
-                </div>
+                <div className="p-2">{renderStoreStatusControl()}</div>
+              ) : null}
+              {renderStoreStatusControl && (showOrderControls || showArchiveAction) ? (
+                <DropdownMenuSeparator />
               ) : null}
               {showOrderControls ? (
-                <button
-                  className="kds-mobile-fab-action flex h-[var(--kds-mobile-action-height)] w-full items-center gap-2.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-semibold text-[var(--color-text-subtle)] hover:border-[var(--color-border-hover)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]"
-                  onClick={() => {
-                    onSortToggle();
-                    setFabOpen(false);
-                  }}
-                  type="button"
-                >
+                <DropdownMenuItem onSelect={onSortToggle}>
                   {orderSortDirection === "newest-first" ? (
-                    <ClockArrowDown aria-hidden="true" size={17} />
+                    <ClockArrowDown aria-hidden="true" />
                   ) : (
-                    <ClockArrowUp aria-hidden="true" size={17} />
+                    <ClockArrowUp aria-hidden="true" />
                   )}
-                  <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                    {orderSortDirection === "newest-first" ? "최신 주문 우선" : "과거 주문 우선"}
-                  </span>
-                </button>
+                  {orderSortDirection === "newest-first" ? "최신 주문 우선" : "과거 주문 우선"}
+                </DropdownMenuItem>
+              ) : null}
+              {showOrderControls ? (
+                <DropdownMenuItem disabled={busy} onSelect={() => void onRefresh()}>
+                  <RefreshCw aria-hidden="true" className={cn(busy && "animate-spin")} />
+                  주문 새로고침
+                </DropdownMenuItem>
               ) : null}
               {showArchiveAction ? (
-                <button
-                  className="kds-mobile-fab-action danger flex h-[var(--kds-mobile-action-height)] w-full items-center gap-2.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-semibold text-[var(--color-danger-text)] hover:border-[var(--color-border-hover)] hover:bg-[var(--color-surface-2)]"
+                <DropdownMenuItem
+                  className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                   disabled={archivingCompleted}
-                  onClick={() => {
-                    onArchiveClick();
-                    setFabOpen(false);
-                  }}
-                  type="button"
+                  onSelect={onArchiveClick}
                 >
-                  <Trash2 aria-hidden="true" size={17} />
-                  <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                    완료 주문 정리
-                  </span>
-                </button>
+                  <Trash2 aria-hidden="true" />
+                  완료 주문 정리
+                </DropdownMenuItem>
               ) : null}
-            </div>
-          ) : null}
-          <button
-            aria-expanded={fabOpen}
-            aria-label={fabOpen ? "주문 작업 메뉴 닫기" : "주문 작업 메뉴 열기"}
-            className="kds-mobile-fab-button relative z-[1] flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-accent)] text-[var(--color-accent-fg)] shadow-[0_10px_28px_rgba(0,0,0,0.22)] hover:bg-[var(--color-accent-hover)]"
-            onClick={() => setFabOpen((value) => !value)}
-            type="button"
-          >
-            {fabOpen ? <X aria-hidden="true" size={22} /> : <Menu aria-hidden="true" size={22} />}
-          </button>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       ) : null}
     </>

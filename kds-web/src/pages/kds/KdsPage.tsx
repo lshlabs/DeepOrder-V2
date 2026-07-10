@@ -9,22 +9,17 @@ import { OrderDetailModal } from "@/features/kds/orders/components/OrderDetailMo
 import { RemoveOrderDialog } from "@/features/kds/orders/components/RemoveOrderDialog";
 import { useKdsOrders } from "@/features/kds/orders/hooks/useKdsOrders";
 import { useOrderOverlays } from "@/features/kds/orders/hooks/useOrderOverlays";
-import { ChangePasswordModal } from "@/features/kds/settings/components/ChangePasswordModal";
-import { SettingsPanel } from "@/features/kds/settings/components/SettingsPanel";
-import { useKdsSettings } from "@/features/kds/settings/hooks/useKdsSettings";
-import { StaffPanel } from "@/features/kds/staff/components/StaffPanel";
+import { ChangePasswordDialog, SettingsPage, useKdsSettings } from "@/features/settings";
+import { StaffPage } from "@/features/staff";
 import { StatsDatePicker } from "@/features/kds/stats/components/StatsDatePicker";
 import { StatsPanel } from "@/features/kds/stats/components/StatsPanel";
 import { useKdsStats } from "@/features/kds/stats/hooks/useKdsStats";
-import { StoreStatusControl } from "@/features/kds/store-status/components/StoreStatusControl";
-import { useStoreContext } from "@/features/kds/store-status/hooks/useStoreContext";
+import { StoreStatusControl, useStoreContext } from "@/features/store-status";
 import { ChatbotFab } from "@/features/kds/support/components/ChatbotFab";
 import { SupportPanel } from "@/features/kds/support/components/SupportPanel";
-import { MyTasksPanel } from "@/features/kds/tasks/components/MyTasksPanel";
-import { useAssignedMenus } from "@/features/kds/tasks/hooks/useAssignedMenus";
-import { KdsToast } from "@/shared/components/KdsToast";
-import { useKdsClock } from "@/shared/hooks/useKdsClock";
-import { useToast } from "@/shared/hooks/useToast";
+import { TasksPage, useAssignedMenus } from "@/features/tasks";
+import { useClock } from "@/lib/date/use-clock";
+import { showToast } from "@/lib/notifications";
 import type { AuthSession } from "@/features/auth";
 
 type KdsPageProps = {
@@ -39,8 +34,7 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [clearDoneConfirm, setClearDoneConfirm] = useState(false);
   const [pwModal, setPwModal] = useState(false);
-  const { hideToast, showToast, toast } = useToast();
-  const now = useKdsClock();
+  const now = useClock().getTime();
   const {
     archiveCompletedOrders,
     archivingCompleted,
@@ -204,12 +198,16 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
 
   const sidebar = (
     <KdsSidebar
+      account={{
+        loginId: session.user.loginId,
+        storeName: session.store.storeName,
+        userName: session.user.name,
+      }}
       activeOrderCount={counts.NEW + counts.COOKING}
       activeTab={activeTab}
       isManager={isManager}
       loggingOut={loggingOut}
       open={sidebarOpen}
-      session={session}
       onLogout={handleLogout}
       onOpenChange={setSidebarOpen}
       onTabChange={setActiveTab}
@@ -266,7 +264,7 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
         onConfirm={handleConfirmClearCompleted}
       />
 
-      <ChangePasswordModal
+      <ChangePasswordDialog
         accessToken={session.accessToken}
         open={pwModal}
         showToast={showToast}
@@ -275,21 +273,19 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
         onUnauthorized={onUnauthorized}
       />
 
-      <KdsToast toast={toast} onClose={hideToast} />
     </>
   );
 
   return (
     <KdsShell overlays={overlays} sidebar={sidebar} topbar={topbar}>
       {counts.CANCELLED > 0 ? (
-        <div className="kds-notice-bar border-b border-[var(--color-amber-border)] bg-[var(--color-amber-subtle)] px-4 py-[7px] text-xs font-medium text-[var(--color-amber)]">
+        <div className="border-b border-warning/30 bg-warning/10 px-4 py-2 text-xs font-medium text-warning">
           취소 주문 {counts.CANCELLED}건은 보드에서 제외되어 집계로만 관리됩니다.
         </div>
       ) : null}
 
       {activeTab === "MY_TASKS" ? (
-        <div className="kds-panel-shell">
-          <MyTasksPanel
+          <TasksPage
             assignedMenus={assignedMenus}
             loading={assignedMenusLoading}
             now={now}
@@ -299,22 +295,17 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
             onDeleteAssignedMenu={deleteAssignedMenu}
             onUpdateAssignedMenu={updateAssignedMenu}
           />
-        </div>
       ) : activeTab === "STAFF" && isManager ? (
-        <div className="kds-panel-shell">
-          <StaffPanel onUnauthorized={onUnauthorized} session={session} />
-        </div>
+          <StaffPage onUnauthorized={onUnauthorized} session={session} />
       ) : activeTab === "STATS" ? (
         <StatsPanel loading={statsLoading} orders={orders} stats={stats} />
       ) : activeTab === "SETTINGS" ? (
-        <div className="kds-panel-shell">
-          <SettingsPanel
+          <SettingsPage
             disabled={settingsDisabled}
             settings={settings}
             onChangePasswordClick={openChangePasswordModal}
             onUpdate={updateSettings}
           />
-        </div>
       ) : activeTab === "SUPPORT" ? (
         <div className="kds-panel-shell">
           <SupportPanel />

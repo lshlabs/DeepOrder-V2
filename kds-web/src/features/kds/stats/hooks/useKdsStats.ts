@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { apiGetKdsStats } from "../../../../lib/api";
 import { requestWithReauth } from "../../../../shared/lib/requestWithReauth";
-import type { ShowToast } from "../../../../shared/hooks/useToast";
+import type { ShowToast } from "@/lib/notifications";
 import type { KdsStatsResponse } from "../../../../types";
 
 type UseKdsStatsParams = {

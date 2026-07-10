@@ -1,6 +1,6 @@
 import { Info, Pin, PinOff, Trash2 } from "lucide-react";
 
-import { ActionMenu } from "../../../../shared/components/floating/ActionMenu";
+import { ActionMenu } from "@/components/blocks";
 
 type OrderContextMenuProps = {
   canPin: boolean;
