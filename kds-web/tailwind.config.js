@@ -11,6 +11,8 @@ export default {
         foreground: hslVar("--foreground"),
         card: hslVar("--card"),
         "card-foreground": hslVar("--card-foreground"),
+        elevated: hslVar("--elevated"),
+        "elevated-foreground": hslVar("--elevated-foreground"),
         popover: hslVar("--popover"),
         "popover-foreground": hslVar("--popover-foreground"),
         border: hslVar("--border"),
@@ -30,6 +32,8 @@ export default {
         "success-foreground": hslVar("--success-foreground"),
         warning: hslVar("--warning"),
         "warning-foreground": hslVar("--warning-foreground"),
+        info: hslVar("--info"),
+        "info-foreground": hslVar("--info-foreground"),
         "chart-1": hslVar("--chart-1"),
         "chart-2": hslVar("--chart-2"),
         "chart-3": hslVar("--chart-3"),
@@ -40,6 +44,13 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        sm: "var(--shadow-sm)",
+        DEFAULT: "var(--shadow-md)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+        card: "var(--shadow-md)",
       },
       keyframes: {
         "accordion-down": {

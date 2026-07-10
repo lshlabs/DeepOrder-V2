@@ -84,6 +84,15 @@ export function OrderCard({
       : normalizedPlatform.includes("takeout") || normalizedPlatform.includes("포장")
         ? "takeout"
         : "dine";
+  const isUrgent = order.status !== "DONE" && elapsedTone === "urgent";
+  const statusRailClass =
+    order.status === "DONE"
+      ? "border-l-success"
+      : isUrgent
+        ? "border-l-destructive"
+        : order.status === "COOKING"
+          ? "border-l-warning"
+          : "border-l-info";
 
   function handlePointerDown(event: PointerEvent<HTMLElement>) {
     if (event.button !== 0) return;
@@ -116,9 +125,11 @@ export function OrderCard({
   return (
     <Card
       className={cn(
-        "flex w-full flex-col overflow-hidden transition-colors",
+        "flex w-full flex-col overflow-hidden border-l-4 transition-colors",
+        statusRailClass,
         order.status === "DONE" && "opacity-60",
-        pinned && "border-primary/30",
+        isUrgent && "ring-1 ring-destructive/40",
+        pinned && "border-primary/30 border-l-primary ring-1 ring-primary/25",
       )}
       ref={cardRef}
       onContextMenu={handleContextMenu}
