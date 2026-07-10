@@ -39,14 +39,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { AuthSession } from "@/features/auth";
+import { requestWithReauth } from "@/lib/api";
+
 import {
   apiCreateStaff,
   apiGetStaff,
   apiRegenerateStaffPin,
   apiUpdateStaff,
   apiUpdateStaffActive,
-} from "@/lib/api";
-import { requestWithReauth } from "@/shared/lib/requestWithReauth";
+} from "../api/staff-api";
 
 import type { Staff } from "../types";
 

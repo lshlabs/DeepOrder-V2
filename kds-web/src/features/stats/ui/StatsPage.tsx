@@ -1,4 +1,5 @@
-import type { KdsStatsResponse, Order } from "@/types";
+import type { Order } from "@/features/orders";
+import type { KdsStatsResponse } from "../types";
 
 import { StatsDashboard } from "./dashboard/StatsDashboard";
 

@@ -11,9 +11,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { apiChangePassword } from "@/lib/api";
+import { requestWithReauth } from "@/lib/api";
+
+import { apiChangePassword } from "../api/settings-api";
 import type { ShowToast } from "@/lib/notifications";
-import { requestWithReauth } from "@/shared/lib/requestWithReauth";
 
 type ChangePasswordDialogProps = {
   accessToken: string;

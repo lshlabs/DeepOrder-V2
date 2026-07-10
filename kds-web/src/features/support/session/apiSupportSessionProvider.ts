@@ -10,15 +10,16 @@ import {
   apiMarkSupportRead,
   apiRequestSupportHandoff,
   apiSendSupportMessage,
-} from "@/lib/api";
+} from "../api/support-api";
 import { loadStoredAccessToken } from "@/features/auth";
-import type { SupportConversationResponse, SupportMessageResponse } from "@/types";
 import type {
   ChatMessage,
   ChatbotSessionState,
   ChatSessionStatus,
   SendSupportMessageInput,
+  SupportConversationResponse,
   SupportFaqEventPayload,
+  SupportMessageResponse,
 } from "../types/support";
 import { localSupportSessionProvider as localSupportSessionProviderFallback } from "./localSupportSessionProvider";
 import type { SupportSessionProvider } from "./supportSessionProvider";

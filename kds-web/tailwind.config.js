@@ -4,10 +4,6 @@ const hslVar = (name) => `hsl(var(${name}) / <alpha-value>)`;
 export default {
   darkMode: ["class"],
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
-  corePlugins: {
-    // Keep preflight off until legacy element selectors in base.css/feature CSS are retired.
-    preflight: false,
-  },
   theme: {
     extend: {
       colors: {

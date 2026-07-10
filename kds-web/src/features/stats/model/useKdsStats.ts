@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { getKdsStats } from "../api/get-kds-stats";
 import type { ShowToast } from "@/lib/notifications";
-import type { KdsStatsResponse } from "@/types";
+import type { KdsStatsResponse } from "../types";
 
 type UseKdsStatsParams = {
   accessToken: string;

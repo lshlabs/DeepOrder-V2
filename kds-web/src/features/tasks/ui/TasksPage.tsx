@@ -39,7 +39,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import type { Order } from "@/types";
+import type { Order } from "@/features/orders";
 
 import { getElapsedMinutes, normalizeAssignedMenuName, parseApiTimestamp } from "../lib/task-formatters";
 import type { AssignedMenu } from "../types";

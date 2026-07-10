@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { requestWithReauth } from "@/lib/api";
+
 import {
   apiCreateAssignedMenu,
   apiDeleteAssignedMenu,
   apiGetAssignedMenus,
   apiUpdateAssignedMenu,
-} from "@/lib/api";
+} from "../api/tasks-api";
 import type { ShowToast } from "@/lib/notifications";
-import { requestWithReauth } from "@/shared/lib/requestWithReauth";
 
 import type { AssignedMenu } from "../types";
 

@@ -1,4 +1,4 @@
-import type { StoreSettings } from "@/types";
+import type { StoreSettings } from "../types";
 
 import type { SettingsState, SoundOption } from "../types";
 

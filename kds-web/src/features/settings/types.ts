@@ -25,3 +25,16 @@ export const DEFAULT_SETTINGS_STATE: SettingsState = {
   },
   autoAccept: false,
 };
+
+export type StoreSettings = {
+  notificationsEnabled: boolean;
+  notificationSound: string;
+  breaktimeEnabled: boolean;
+  breaktimeStartHour: number;
+  breaktimeStartMinute: number;
+  breaktimeDurationMinutes: number;
+  autoAccept: boolean;
+};
+export type UpdateStoreSettingsRequest = StoreSettings;
+export type ChangePasswordRequest = { currentPassword: string; newPassword: string };
+export type ChangePasswordResponse = { message: string };

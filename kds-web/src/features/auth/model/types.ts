@@ -1,4 +1,7 @@
-import type { AccountType, ApprovalStatus, UserRole } from "@/types";
+export type ApprovalStatus = "PENDING_APPROVAL" | "APPROVED" | "REJECTED";
+export type UserRole = "STORE_OWNER" | "ADMIN";
+export type AccountType = "OWNER" | "EMPLOYEE";
+
 
 export type AuthUser = {
   id: number;
