@@ -68,11 +68,12 @@ export function ChatbotWindow({
 
   return (
     <>
-      <button
+      <Button
         aria-label="챗봇 닫기"
-        className="fixed inset-0 z-40 bg-black/20 sm:bg-transparent"
+        className="fixed inset-0 z-40 h-auto w-auto rounded-none bg-black/20 p-0 sm:bg-transparent"
         onClick={onClose}
         type="button"
+        variant="ghost"
       />
       <Card
         aria-label="챗봇 상담"

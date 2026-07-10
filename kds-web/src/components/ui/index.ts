@@ -43,23 +43,6 @@ export {
 export type { ChartConfig } from "./chart";
 export { Checkbox } from "./checkbox";
 export {
-  ContextMenu,
-  ContextMenuCheckboxItem,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuItem,
-  ContextMenuLabel,
-  ContextMenuPortal,
-  ContextMenuRadioGroup,
-  ContextMenuRadioItem,
-  ContextMenuSeparator,
-  ContextMenuShortcut,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-  ContextMenuTrigger,
-} from "./context-menu";
-export {
   Dialog,
   DialogClose,
   DialogContent,
@@ -93,18 +76,6 @@ export { Label } from "./label";
 export { Popover, PopoverContent, PopoverTrigger } from "./popover";
 export { RadioGroup, RadioGroupItem } from "./radio-group";
 export { ScrollArea, ScrollBar } from "./scroll-area";
-export {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectScrollDownButton,
-  SelectScrollUpButton,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from "./select";
 export { Separator } from "./separator";
 export {
   Sheet,
@@ -131,9 +102,3 @@ export {
 } from "./table";
 export { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 export { Textarea } from "./textarea";
-export {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./tooltip";

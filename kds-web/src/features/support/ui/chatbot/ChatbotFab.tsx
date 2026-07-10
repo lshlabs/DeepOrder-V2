@@ -68,7 +68,7 @@ export function ChatbotFab() {
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const agentTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const agentTimerRef = useRef<number | null>(null);
   const userScrolledUpRef = useRef(false);
 
   const { isOpen, isMinimized, status, selectedPath, currentStepId, unreadCount } = session;
