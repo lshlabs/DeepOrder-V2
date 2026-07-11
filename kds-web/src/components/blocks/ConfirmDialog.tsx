@@ -20,6 +20,7 @@ interface ConfirmDialogProps {
   confirmLabel?: ReactNode;
   cancelLabel?: ReactNode;
   confirmVariant?: "default" | "destructive";
+  density?: "default" | "compact";
   isPending?: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
@@ -32,26 +33,32 @@ function ConfirmDialog({
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
   confirmVariant = "default",
+  density = "default",
   isPending = false,
   onOpenChange,
   onConfirm,
 }: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={isPending ? undefined : onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className={density === "compact" ? "max-w-md rounded-panel p-5 shadow-floating-elevated" : undefined}>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           {description ? (
             <AlertDialogDescription>{description}</AlertDialogDescription>
           ) : null}
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>
+        <AlertDialogFooter className={density === "compact" ? "gap-2" : undefined}>
+          <AlertDialogCancel className={density === "compact" ? "h-[38px] rounded-control px-3.5" : undefined} disabled={isPending}>
             {cancelLabel}
           </AlertDialogCancel>
           <AlertDialogAction
             disabled={isPending}
-            className={cn(buttonVariants({ variant: confirmVariant }))}
+            className={cn(
+              buttonVariants({
+                size: density === "compact" ? "control" : undefined,
+                variant: confirmVariant,
+              }),
+            )}
             onClick={onConfirm}
           >
             {confirmLabel}

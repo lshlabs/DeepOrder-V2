@@ -28,11 +28,11 @@ export function AuthExperience({
 }: AuthExperienceProps) {
   if (state === "booting") {
     return (
-      <AuthShell>
-        <div className="space-y-5 rounded-lg border border-border bg-card p-6 shadow-sm">
+      <AuthShell contentClassName="max-w-[400px]">
+        <div className="space-y-5 rounded-panel border border-border bg-card p-5 shadow-floating">
           <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Auth session</p>
-            <h2 className="text-2xl font-semibold tracking-tight">세션 확인 중</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Auth session</p>
+            <h2 className="text-xl font-semibold tracking-tight">세션 확인 중</h2>
             <p className="text-sm leading-6 text-muted-foreground">
               저장된 토큰을 확인하고 매장 계정 상태를 복원하고 있습니다.
             </p>
@@ -45,7 +45,7 @@ export function AuthExperience({
 
   if (state === "pending" && pendingInfo) {
     return (
-      <AuthShell>
+      <AuthShell contentClassName="max-w-[400px]">
         <ApprovalPendingView pendingInfo={pendingInfo} onBack={onBackFromPending} />
       </AuthShell>
     );

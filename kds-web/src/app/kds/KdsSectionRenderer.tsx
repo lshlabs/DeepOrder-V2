@@ -60,7 +60,7 @@ export function KdsSectionRenderer({ workspace }: KdsSectionRendererProps) {
 
   if (activeSection === "SUPPORT") {
     return (
-      <div className="min-w-0 w-full p-3 md:p-6">
+      <div className="min-w-0 w-full pb-24 pt-3 md:pb-6 md:pt-6">
         <SupportPage />
         <ChatbotFab />
       </div>

@@ -40,9 +40,10 @@ export function KdsAccountMenu({
         <Button
           aria-label={`${account.storeName} 계정 메뉴`}
           className={cn(
-            "h-10 w-full gap-2 px-2",
+            "h-9 w-full gap-2 rounded-control px-2.5 text-foreground hover:bg-surface-2",
             expanded ? "justify-start" : "justify-center",
           )}
+          size={expanded ? "compact" : "icon-sm"}
           title={account.storeName}
           type="button"
           variant="ghost"
@@ -57,8 +58,14 @@ export function KdsAccountMenu({
           ) : null}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64" side="right" sideOffset={8}>
-        <DropdownMenuLabel className="flex items-center gap-3 py-2">
+      <DropdownMenuContent
+        align={expanded ? "start" : "end"}
+        className="w-[232px]"
+        density="compact"
+        side={expanded ? "top" : "right"}
+        sideOffset={8}
+      >
+        <DropdownMenuLabel className="flex items-center gap-3 py-2" density="compact">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
             {initials}
           </span>
@@ -74,6 +81,7 @@ export function KdsAccountMenu({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+          density="compact"
           disabled={loggingOut}
           onSelect={() => void onLogout()}
         >

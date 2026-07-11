@@ -1,8 +1,23 @@
 import type { HTMLAttributes, ReactNode } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-interface DataTableShellProps extends HTMLAttributes<HTMLDivElement> {
+const dataTableShellVariants = cva("w-full overflow-hidden border", {
+  variants: {
+    density: {
+      default: "rounded-md",
+      compact: "rounded-panel",
+    },
+  },
+  defaultVariants: {
+    density: "default",
+  },
+});
+
+interface DataTableShellProps
+  extends HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof dataTableShellVariants> {
   caption?: ReactNode;
   header?: ReactNode;
   children: ReactNode;
@@ -14,12 +29,13 @@ function DataTableShell({
   header,
   children,
   footer,
+  density,
   className,
   ...props
 }: DataTableShellProps) {
   return (
     <div
-      className={cn("w-full overflow-hidden rounded-md border", className)}
+      className={cn(dataTableShellVariants({ density }), className)}
       {...props}
     >
       <div className="w-full overflow-x-auto">
@@ -40,5 +56,5 @@ function DataTableShell({
   );
 }
 
-export { DataTableShell };
+export { DataTableShell, dataTableShellVariants };
 export type { DataTableShellProps };

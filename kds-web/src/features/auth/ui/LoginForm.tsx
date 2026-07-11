@@ -28,6 +28,13 @@ const defaultForm: LoginRequest = {
   autoLogin: false,
 };
 
+function getLoginErrorMessage(error: unknown) {
+  if (!(error instanceof ApiError)) return "로그인에 실패했습니다.";
+  return error.message === "Invalid loginId or password."
+    ? "로그인에 실패했습니다."
+    : error.message;
+}
+
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const [form, setForm] = useState(defaultForm);
   const [rememberLoginId, setRememberLoginId] = useState(false);
@@ -62,7 +69,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       saveLoginPreferences(loginId, rememberLoginId, form.autoLogin);
       onSuccess(response);
     } catch (error) {
-      setErrorMessage(error instanceof ApiError ? error.message : "로그인에 실패했습니다.");
+      setErrorMessage(getLoginErrorMessage(error));
     } finally {
       setSubmitting(false);
     }
@@ -71,19 +78,20 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   const errorId = errorMessage ? "login-form-error" : undefined;
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+    <form className="space-y-3.5" onSubmit={handleSubmit} noValidate>
       {errorMessage ? (
-        <Alert id={errorId} variant="destructive">
+        <Alert className="rounded-panel" id={errorId} variant="destructive">
           <AlertDescription>{errorMessage}</AlertDescription>
         </Alert>
       ) : null}
 
       <div className="space-y-2">
-        <Label htmlFor="login-id">아이디</Label>
+        <Label className="text-xs font-medium text-muted-foreground" htmlFor="login-id">아이디</Label>
         <Input
           id="login-id"
           ref={loginIdRef}
           autoComplete="username"
+          density="compact"
           name="loginId"
           value={form.loginId}
           placeholder="아이디"
@@ -95,10 +103,11 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="login-password">비밀번호 / PIN</Label>
+        <Label className="text-xs font-medium text-muted-foreground" htmlFor="login-password">비밀번호 / PIN</Label>
         <PasswordField
           id="login-password"
           autoComplete="current-password"
+          density="compact"
           minLength={4}
           name="password"
           value={form.password}
@@ -110,10 +119,11 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         />
       </div>
 
-      <div className="flex flex-wrap gap-x-5 gap-y-3">
+      <div className="flex flex-wrap gap-x-5 gap-y-2.5 pt-0.5">
         <div className="flex items-center gap-2">
           <Checkbox
             id="remember-login-id"
+            className="rounded-[5px] border-border"
             checked={rememberLoginId}
             onCheckedChange={(checked) => setRememberLoginId(checked === true)}
           />
@@ -125,6 +135,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         <div className="flex items-center gap-2">
           <Checkbox
             id="auto-login"
+            className="rounded-[5px] border-border"
             checked={form.autoLogin}
             onCheckedChange={(checked) =>
               setForm((current) => ({ ...current, autoLogin: checked === true }))
@@ -136,7 +147,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         </div>
       </div>
 
-      <Button className="w-full" disabled={submitting} type="submit">
+      <Button className="w-full" disabled={submitting} size="control" type="submit">
         {submitting ? "로그인 중…" : "로그인"}
       </Button>
     </form>

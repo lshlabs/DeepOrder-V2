@@ -14,14 +14,14 @@ export function PasswordField({ className, ...props }: PasswordFieldProps) {
     <div className="relative">
       <Input
         {...props}
-        className={cn("pr-11", className)}
+        className={cn("pr-10", className)}
         type={visible ? "text" : "password"}
       />
       <Button
         type="button"
         variant="ghost"
-        size="icon"
-        className="absolute right-1 top-1/2 size-8 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+        size="icon-xs"
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:bg-transparent hover:text-foreground"
         aria-label={label}
         title={label}
         onClick={() => setVisible((current) => !current)}

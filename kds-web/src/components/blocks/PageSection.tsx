@@ -15,6 +15,7 @@ const pageSectionContentVariants = cva("", {
     density: {
       default: "p-6 pt-0",
       compact: "p-4 pt-0",
+      dense: "p-3 pt-0",
       spacious: "p-8 pt-0",
     },
   },
@@ -22,6 +23,23 @@ const pageSectionContentVariants = cva("", {
     density: "default",
   },
 });
+
+const pageSectionHeaderVariants = cva(
+  "flex flex-col space-y-0 sm:flex-row sm:items-start sm:justify-between",
+  {
+    variants: {
+      density: {
+        default: "gap-3",
+        compact: "gap-2.5",
+        dense: "gap-2",
+        spacious: "gap-4",
+      },
+    },
+    defaultVariants: {
+      density: "default",
+    },
+  },
+);
 
 interface PageSectionProps
   extends Omit<HTMLAttributes<HTMLElement>, "title">,
@@ -47,15 +65,15 @@ function PageSection({
     <section className={className} {...props}>
       <Card>
         {hasHeader ? (
-          <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0 space-y-1">
+          <CardHeader className={pageSectionHeaderVariants({ density })}>
+            <div className={cn("min-w-0", density === "dense" ? "space-y-0.5" : "space-y-1")}>
               {title ? <CardTitle>{title}</CardTitle> : null}
               {description ? (
                 <CardDescription>{description}</CardDescription>
               ) : null}
             </div>
             {actions ? (
-              <div className="flex shrink-0 flex-wrap items-center gap-2">
+              <div className={cn("flex shrink-0 flex-wrap items-center", density === "dense" ? "gap-1.5" : "gap-2")}>
                 {actions}
               </div>
             ) : null}

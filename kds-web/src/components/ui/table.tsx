@@ -1,6 +1,37 @@
 import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
+
+const tableHeadVariants = cva(
+  "text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+  {
+    variants: {
+      density: {
+        default: "h-10 px-2",
+        compact: "h-8 bg-surface-2 px-3 text-[10px] font-semibold uppercase tracking-[0.05em]",
+      },
+    },
+    defaultVariants: {
+      density: "default",
+    },
+  },
+)
+
+const tableCellVariants = cva(
+  "align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+  {
+    variants: {
+      density: {
+        default: "p-2",
+        compact: "px-3 py-2.5",
+      },
+    },
+    defaultVariants: {
+      density: "default",
+    },
+  },
+)
 
 const Table = React.forwardRef<
   HTMLTableElement,
@@ -68,12 +99,13 @@ TableRow.displayName = "TableRow"
 
 const TableHead = React.forwardRef<
   HTMLTableCellElement,
-  React.ThHTMLAttributes<HTMLTableCellElement>
->(({ className, ...props }, ref) => (
+  React.ThHTMLAttributes<HTMLTableCellElement> &
+    VariantProps<typeof tableHeadVariants>
+>(({ className, density, ...props }, ref) => (
   <th
     ref={ref}
     className={cn(
-      "h-10 px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+      tableHeadVariants({ density }),
       className
     )}
     {...props}
@@ -83,12 +115,13 @@ TableHead.displayName = "TableHead"
 
 const TableCell = React.forwardRef<
   HTMLTableCellElement,
-  React.TdHTMLAttributes<HTMLTableCellElement>
->(({ className, ...props }, ref) => (
+  React.TdHTMLAttributes<HTMLTableCellElement> &
+    VariantProps<typeof tableCellVariants>
+>(({ className, density, ...props }, ref) => (
   <td
     ref={ref}
     className={cn(
-      "p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+      tableCellVariants({ density }),
       className
     )}
     {...props}
@@ -117,4 +150,6 @@ export {
   TableRow,
   TableCell,
   TableCaption,
+  tableHeadVariants,
+  tableCellVariants,
 }

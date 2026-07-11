@@ -158,17 +158,18 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
   const addressHintId = addressHint ? "address-hint" : undefined;
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+    <form className="space-y-3.5" onSubmit={handleSubmit} noValidate>
       {errorMessage ? (
-        <Alert id={errorId} variant="destructive">
+        <Alert className="rounded-panel" id={errorId} variant="destructive">
           <AlertDescription>{errorMessage}</AlertDescription>
         </Alert>
       ) : null}
 
       <div className="space-y-2">
-        <Label htmlFor="registration-name">이름</Label>
+        <Label className="text-xs font-medium text-muted-foreground" htmlFor="registration-name">이름</Label>
         <Input
           id="registration-name"
+          density="compact"
           name="name"
           value={form.name}
           placeholder="이름"
@@ -179,12 +180,13 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="registration-id">아이디</Label>
+        <Label className="text-xs font-medium text-muted-foreground" htmlFor="registration-id">아이디</Label>
         <div className="flex gap-2">
           <Input
             id="registration-id"
             className="min-w-0 flex-1"
             autoComplete="username"
+            density="compact"
             name="loginId"
             value={form.loginId}
             placeholder="아이디"
@@ -205,6 +207,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
             variant="outline"
             className="shrink-0"
             disabled={checkingIdentifier}
+            size="compact"
             onClick={() => void handleCheckIdentifier()}
           >
             {checkingIdentifier ? "확인 중…" : "중복확인"}
@@ -212,10 +215,14 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         </div>
         {identifierHint ? (
           <Alert
+            className={
+              identifierHint.type === "success"
+                ? "rounded-panel border-success/40 text-success"
+                : "rounded-panel"
+            }
             id={identifierHintId}
             variant={identifierHint.type === "error" ? "destructive" : "default"}
             role="status"
-            className={identifierHint.type === "success" ? "border-success/40 text-success" : undefined}
           >
             <AlertDescription>{identifierHint.message}</AlertDescription>
           </Alert>
@@ -223,10 +230,11 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="registration-password">비밀번호</Label>
+        <Label className="text-xs font-medium text-muted-foreground" htmlFor="registration-password">비밀번호</Label>
         <PasswordField
           id="registration-password"
           autoComplete="new-password"
+          density="compact"
           minLength={8}
           pattern="(?=.*[A-Za-z])(?=.*\d).{8,}"
           name="password"
@@ -238,11 +246,12 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="store-name">매장명</Label>
+          <Label className="text-xs font-medium text-muted-foreground" htmlFor="store-name">매장명</Label>
           <Input
             id="store-name"
+            density="compact"
             name="storeName"
             value={form.storeName}
             placeholder="매장명"
@@ -252,9 +261,10 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="store-phone">연락처</Label>
+          <Label className="text-xs font-medium text-muted-foreground" htmlFor="store-phone">연락처</Label>
           <Input
             id="store-phone"
+            density="compact"
             name="storePhone"
             value={form.storePhone}
             placeholder="01012345678"
@@ -267,32 +277,35 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="store-address">매장 주소</Label>
+        <Label className="text-xs font-medium text-muted-foreground" htmlFor="store-address">매장주소</Label>
         <div className="flex gap-2">
           <Input
             id="store-address"
             className="min-w-0 flex-1"
+            density="compact"
+            surface="flat"
             name="roadAddress"
             value={form.roadAddress}
             placeholder="주소 검색을 이용해주세요"
             readOnly
             aria-describedby={addressHintId}
           />
-          <Button type="button" variant="outline" className="shrink-0" onClick={handleAddressSearch}>
+          <Button type="button" variant="outline" className="shrink-0" size="compact" onClick={handleAddressSearch}>
             주소 검색
           </Button>
         </div>
         {addressHint ? (
-          <Alert id={addressHintId} role="status">
+          <Alert className="rounded-panel" id={addressHintId} role="status">
             <AlertDescription>{addressHint}</AlertDescription>
           </Alert>
         ) : null}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="address-detail">상세 주소</Label>
+        <Label className="text-xs font-medium text-muted-foreground" htmlFor="address-detail">상세주소</Label>
         <Input
           id="address-detail"
+          density="compact"
           name="addressDetail"
           value={form.addressDetail}
           aria-describedby={errorId}
@@ -300,7 +313,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         />
       </div>
 
-      <Button className="w-full" disabled={submitting} type="submit">
+      <Button className="w-full" disabled={submitting} size="control" type="submit">
         {submitting ? "신청 중…" : "가입 신청"}
       </Button>
     </form>
