@@ -1,0 +1,27 @@
+/* TimePicker overrides kept while the control still comes from Ant Design. */
+.kds-time-range-picker {
+  width: 100%;
+}
+
+.kds-time-range-picker.ant-picker {
+  padding-inline: 8px;
+}
+
+.kds-time-range-picker .ant-picker-input > input {
+  font-size: 13px;
+  min-width: 0;
+  text-align: center;
+}
+
+.kds-time-range-picker .ant-picker-input {
+  flex: 0 1 52px;
+  min-width: 0;
+}
+
+.kds-time-range-picker .ant-picker-range-separator {
+  padding-inline: 4px;
+}
+
+.kds-time-range-picker .ant-picker-suffix {
+  margin-inline-start: 6px;
+}

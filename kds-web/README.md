@@ -35,10 +35,6 @@ VITE_DEEPORDER_API_URL=http://127.0.0.1:8000
 
 주소 검색 팝업을 쓰려면 backend에 `JUSO_CONFIRM_KEY`, `JUSO_RETURN_URL`이 설정되어 있어야 합니다.
 
-## Architecture
-
-Frontend structure, import boundaries, styling rules, and validation commands are documented in [`docs/architecture/frontend.md`](docs/architecture/frontend.md).
-
 ## Auth Flow
 
 ```text

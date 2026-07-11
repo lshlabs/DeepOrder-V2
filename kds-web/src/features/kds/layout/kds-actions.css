@@ -1,0 +1,68 @@
+@keyframes kds-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Mobile action and notice layout styles moved to Tailwind utilities in component files. */
+
+.kds-mobile-fab-status .kds-store-status-popup {
+  bottom: calc(100% + 8px);
+  left: auto;
+  right: 0;
+  top: auto;
+}
+
+/* ── Toast ── */
+.kds-toast {
+  align-items: center;
+  animation: kds-toast-in 0.18s ease;
+  background: var(--color-text);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  bottom: 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  color: var(--color-surface);
+  display: flex;
+  font-size: 13px;
+  font-weight: 500;
+  gap: 7px;
+  left: 50%;
+  max-width: 340px;
+  padding: 9px 11px 9px 13px;
+  position: fixed;
+  transform: translateX(-50%);
+  z-index: 200;
+}
+
+.kds-toast.error {
+  background: var(--color-error-bg);
+  border-color: var(--color-error-border);
+  color: var(--color-error-text);
+}
+
+.kds-toast span { flex: 1; }
+
+.kds-toast-close {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: inherit;
+  display: flex;
+  flex-shrink: 0;
+  height: 22px;
+  justify-content: center;
+  opacity: 0.55;
+  padding: 0;
+  width: 22px;
+}
+
+.kds-toast-close:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.15);
+  opacity: 1;
+}
+
+@keyframes kds-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}

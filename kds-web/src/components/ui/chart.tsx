@@ -128,7 +128,7 @@ ${colorConfig
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color;
-    return color ? `  --series-color-${key}: ${color};` : null;
+    return color ? `  --color-${key}: ${color};` : null;
   })
   .join('\n')}
 }
@@ -246,7 +246,7 @@ const ChartTooltipContent = React.forwardRef<
                       !hideIndicator && (
                         <div
                           className={cn(
-                            'shrink-0 rounded-[2px] border-[--chart-indicator-border] bg-[--chart-indicator-bg]',
+                            'shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]',
                             {
                               'h-2.5 w-2.5': indicator === 'dot',
                               'w-1': indicator === 'line',
@@ -257,8 +257,8 @@ const ChartTooltipContent = React.forwardRef<
                           )}
                           style={
                             {
-                              '--chart-indicator-bg': indicatorColor,
-                              '--chart-indicator-border': indicatorColor,
+                              '--color-bg': indicatorColor,
+                              '--color-border': indicatorColor,
                             } as React.CSSProperties
                           }
                         />

@@ -1,0 +1,182 @@
+/* Board, card header, request panel, and detail read-only layout styles moved to Tailwind utilities in component files. */
+
+.kds-pull-indicator svg {
+  color: rgba(42, 47, 57, 0.45);
+  transition: opacity 0.1s ease, transform 0.15s ease;
+}
+
+.kds-pull-indicator svg.ready {
+  color: rgba(42, 47, 57, 0.72);
+  transform: rotate(180deg);
+}
+
+.kds-pull-indicator-spinner {
+  animation: kds-spin 0.8s linear infinite;
+}
+
+.kds-lane {
+  overscroll-behavior-y: contain;
+  transform: translateY(var(--kds-pull-distance, 0));
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.kds-lane::-webkit-scrollbar { display: none; }
+
+.kds-board.pulling .kds-pull-indicator,
+.kds-board.pulling .kds-lane {
+  transition: none;
+}
+
+@media (min-width: 768px) {
+  .kds-lane {
+    overscroll-behavior-y: auto;
+    scroll-snap-type: x proximity;
+    transform: none;
+    transition: none;
+  }
+}
+
+.kds-elapsed-badge.warning { color: var(--color-amber); }
+.kds-elapsed-badge.urgent  { color: var(--color-red); }
+
+/* ── Item rows — continuous flat list ── */
+.kds-items {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.kds-item-group {
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.kds-item-group:last-child { border-bottom: none; }
+
+.kds-item {
+  --kds-row-bg: var(--color-surface);
+  align-items: flex-start;
+  background:
+    linear-gradient(
+      to right,
+      rgba(34, 197, 94, 0.12) 0%,
+      rgba(34, 197, 94, 0.12) calc(var(--kds-progress-ratio, 0) * 100%),
+      transparent calc(var(--kds-progress-ratio, 0) * 100%),
+      transparent 100%
+    ),
+    var(--kds-row-bg);
+  border-bottom: none;
+  cursor: pointer;
+  display: flex;
+  gap: 0;
+  padding: 9px 12px;
+  position: relative;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.kds-item.last,
+.kds-item:last-child { border-bottom: none; }
+
+.kds-item:not(.done):hover { --kds-row-bg: var(--color-surface-2); }
+
+/* Allergy highlight — background tint only, no duplicate left border */
+.kds-item.allergy {
+  --kds-row-bg: rgba(220, 38, 38, 0.06);
+}
+
+/* Done state */
+.kds-item.done { --kds-row-bg: rgba(34, 197, 94, 0.05); }
+.kds-item.done:hover { --kds-row-bg: rgba(34, 197, 94, 0.08); }
+
+/* Options — indented text, no list bullets or boxes */
+.kds-item-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.kds-item-opts li {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 400;
+  padding-left: 10px;
+  position: relative;
+}
+
+.kds-item-opts li::before {
+  color: var(--color-text-muted);
+  content: "└";
+  font-size: 9px;
+  left: 0;
+  opacity: 0.5;
+  position: absolute;
+  top: 2px;
+}
+
+.kds-item.done .kds-item-opts li { color: rgba(34, 197, 94, 0.6); }
+
+/* Flag icons — allergy / done */
+.kds-item-flag {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  margin-left: 4px;
+  padding-top: 2px;
+}
+
+.kds-item-flag.allergy { color: var(--color-red); }
+.kds-item-flag.done { color: var(--color-green); }
+
+.kds-request-label.urgent { color: var(--color-red); }
+
+/* ═══════════════════════════════════════════════
+   Modal
+═══════════════════════════════════════════════ */
+@keyframes kds-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.kds-modal--sm { max-width: 340px; }
+
+@keyframes kds-modal-in {
+  from { opacity: 0; transform: scale(0.94) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.kds-modal-body::-webkit-scrollbar { display: none; }
+
+.kds-detail-item-group:last-child .kds-detail-item:last-child { border-bottom: none; }
+.kds-detail-item-options {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+}
+
+.kds-detail-item-options li {
+  padding-left: 8px;
+  position: relative;
+}
+
+.kds-detail-item-options li::before {
+  color: var(--color-text-muted);
+  content: "└";
+  font-size: 9px;
+  left: 0;
+  opacity: 0.5;
+  position: absolute;
+}
+
+.kds-detail-text.empty {
+  color: var(--color-text-muted);
+}
