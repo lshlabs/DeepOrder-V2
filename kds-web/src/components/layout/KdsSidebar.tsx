@@ -75,7 +75,7 @@ export function KdsSidebar(props: KdsSidebarProps) {
         </div>
       </aside>
 
-      <aside className="flex w-11 shrink-0 flex-col border-r border-border bg-card md:hidden">
+      <aside className="flex w-[42px] shrink-0 flex-col border-r border-border bg-card md:hidden">
         <div className="flex h-12 items-center justify-center border-b border-border">
           <Button
             aria-label="메뉴 열기"

@@ -78,14 +78,14 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   const errorId = errorMessage ? "login-form-error" : undefined;
 
   return (
-    <form className="space-y-3.5" onSubmit={handleSubmit} noValidate>
+    <form className="flex flex-col gap-[11px]" onSubmit={handleSubmit} noValidate>
       {errorMessage ? (
         <Alert className="rounded-panel" id={errorId} variant="destructive">
           <AlertDescription>{errorMessage}</AlertDescription>
         </Alert>
       ) : null}
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-1.5">
         <Label className="text-xs font-medium text-muted-foreground" htmlFor="login-id">아이디</Label>
         <Input
           id="login-id"
@@ -102,7 +102,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-1.5">
         <Label className="text-xs font-medium text-muted-foreground" htmlFor="login-password">비밀번호 / PIN</Label>
         <PasswordField
           id="login-password"
@@ -127,7 +127,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             checked={rememberLoginId}
             onCheckedChange={(checked) => setRememberLoginId(checked === true)}
           />
-          <Label htmlFor="remember-login-id" className="cursor-pointer text-sm font-normal text-muted-foreground">
+          <Label htmlFor="remember-login-id" className="cursor-pointer text-[13px] font-normal text-muted-foreground">
             아이디 저장
           </Label>
         </div>
@@ -141,7 +141,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
               setForm((current) => ({ ...current, autoLogin: checked === true }))
             }
           />
-          <Label htmlFor="auto-login" className="cursor-pointer text-sm font-normal text-muted-foreground">
+          <Label htmlFor="auto-login" className="cursor-pointer text-[13px] font-normal text-muted-foreground">
             자동 로그인
           </Label>
         </div>
