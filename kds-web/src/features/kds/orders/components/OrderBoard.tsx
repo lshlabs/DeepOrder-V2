@@ -199,7 +199,7 @@ export function OrderBoard({
   return (
     <section
       aria-label="주문 보드"
-      className={`kds-board relative flex-1 overflow-hidden p-2.5 md:p-[14px_16px]${isPullActive ? " pull-active" : ""}${displayPullPhase === "pulling" || displayPullPhase === "ready" ? " pulling" : ""}`}
+      className={`kds-board${isPullActive ? " pull-active" : ""}${displayPullPhase === "pulling" || displayPullPhase === "ready" ? " pulling" : ""}`}
       onTouchCancel={handleTouchEnd}
       onTouchEnd={handleTouchEnd}
       onTouchMove={handleTouchMove}
@@ -209,21 +209,21 @@ export function OrderBoard({
       {isMobile ? (
         <div
           aria-hidden={!isPullActive}
-          className={`kds-pull-indicator pointer-events-none absolute inset-x-2.5 top-0 z-0 flex items-center justify-center overflow-hidden text-[var(--color-text-muted)] transition-[height,opacity] duration-200${isPullActive ? " visible opacity-100" : " opacity-0"}`}
+          className={`kds-pull-indicator${isPullActive ? " visible" : ""}`}
           style={{ height: `${pullIndicatorHeight}px` }}
         >
-          <span className="grid h-5 w-5 place-items-center">{renderPullIndicatorIcon()}</span>
+          <span>{renderPullIndicatorIcon()}</span>
         </div>
       ) : null}
       {orders.length === 0 ? (
-        <div className="kds-empty flex h-full w-full items-center justify-center text-[13px] text-muted-foreground">
+        <div className="kds-empty">
           {loading ? "주문을 불러오는 중…" : emptyMessage}
         </div>
       ) : (
-        <div className="kds-lane relative z-[1] flex h-full flex-col items-start gap-2.5 overflow-x-hidden overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] md:static md:flex-row md:overflow-x-auto md:overflow-y-hidden md:pb-2.5" ref={laneRef}>
+        <div className="kds-lane" ref={laneRef}>
           {renderedColumns.map((column) => (
             <div
-              className={`kds-lane-column flex w-full flex-none flex-col gap-2.5 [scroll-snap-align:start] md:w-auto md:basis-[280px] ${column.width === "wide" ? "md:basis-[320px] lg:basis-[360px]" : ""}${column.width === "xwide" ? "md:basis-[384px] lg:basis-[440px]" : ""} kds-lane-column--${column.width}${column.orders.length > 1 ? " stacked" : ""}`}
+              className={`kds-lane-column kds-lane-column--${column.width}${column.orders.length > 1 ? " stacked" : ""}`}
               key={`${column.width}-${column.orders.map((order) => order.id).join("-")}`}
             >
               {column.orders.map((order) => (

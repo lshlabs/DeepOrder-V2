@@ -24,11 +24,6 @@ h1, h2, h3, h4, p { margin: 0; }
 /* ═══════════════════════════════════════════════
    Form elements
 ═══════════════════════════════════════════════ */
-/*
- * Legacy screens still rely on element-level button/input styling.
- * shadcn/ui components override these defaults with utility classes,
- * so preflight remains disabled until the legacy feature CSS is removed.
- */
 input {
   background: var(--color-surface);
   border: 1px solid var(--color-border);

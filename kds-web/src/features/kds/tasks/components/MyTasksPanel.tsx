@@ -1,8 +1,6 @@
 import { useMemo, useState } from "react";
 import { MoreVertical, Pencil, Plus, Trash2, X } from "lucide-react";
 
-import { Button } from "../../../../components/ui/button";
-import { Input } from "../../../../components/ui/input";
 import {
   getElapsedMinutes,
   normalizeAssignedMenuName,
@@ -218,10 +216,10 @@ export function MyTasksPanel({
               : "담당 메뉴가 없습니다"}
           </p>
         </div>
-        <Button className="kds-btn-primary kds-btn-sm h-8 gap-1.5 px-3 text-xs" onClick={openAdd} type="button">
+        <button className="kds-btn-primary kds-btn-sm" onClick={openAdd} type="button">
           <Plus size={11} aria-hidden="true" />
           메뉴 추가
-        </Button>
+        </button>
       </div>
 
       {loading ? (
@@ -229,7 +227,7 @@ export function MyTasksPanel({
       ) : assignedMenus.length === 0 ? (
         <p className="kds-panel-empty">메뉴 추가를 눌러 담당 메뉴를 등록하세요.</p>
       ) : (
-        <div className="kds-mytasks-grid grid grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-px border-b border-border bg-border">
+        <div className="kds-mytasks-grid">
           {sortedMenus.map((menu) => {
             const count = remainingCounts.get(menu.menuName) ?? 0;
             const isIdle = count === 0;
@@ -239,9 +237,7 @@ export function MyTasksPanel({
             return (
               <div
                 key={menu.id}
-                className={`kds-menu-tile group relative flex min-h-24 flex-col gap-1 bg-background px-4 pb-3 pt-3.5 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary ${
-                  isIdle ? "idle opacity-55" : ""
-                }${isDelayed ? " delayed bg-[var(--color-red-subtle)]" : ""}${isSelected ? " selected bg-[var(--color-accent-subtle)] opacity-100" : ""}`}
+                className={`kds-menu-tile${isIdle ? " idle" : ""}${isDelayed ? " delayed" : ""}${isSelected ? " selected" : ""}`}
                 onClick={() => handleTileClick(String(menu.id))}
                 role="button"
                 tabIndex={0}
@@ -254,13 +250,13 @@ export function MyTasksPanel({
                 }}
               >
                 {isDelayed ? (
-                  <span className="kds-tile-delay-dot absolute right-[34px] top-3 block h-[7px] w-[7px] rounded-full bg-[var(--color-red)]" aria-label="지연" title="지연 주문 있음" />
+                  <span className="kds-tile-delay-dot" aria-label="지연" title="지연 주문 있음" />
                 ) : null}
-                <div className={`kds-menu-tile-count text-4xl font-extrabold leading-none tracking-[-1px] ${isIdle ? "text-muted-foreground" : isDelayed ? "text-[var(--color-red)]" : isSelected ? "text-[var(--color-accent)]" : "text-[var(--color-accent)]"}`} aria-label={`진행중 ${count}건`}>{count}</div>
-                <div className={`kds-menu-tile-name max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[13px] font-medium leading-[1.3] ${isSelected ? "font-semibold text-[var(--color-accent)]" : "text-[var(--color-text-subtle)]"}`}>{menu.menuName}</div>
-                <div className="kds-tile-options-wrap absolute right-2 top-2">
+                <div className="kds-menu-tile-count" aria-label={`진행중 ${count}건`}>{count}</div>
+                <div className="kds-menu-tile-name">{menu.menuName}</div>
+                <div className="kds-tile-options-wrap">
                   <button
-                    className="kds-tile-options-btn flex h-8 w-8 items-center justify-center rounded-sm bg-transparent p-0 text-muted-foreground opacity-100 transition-colors md:opacity-0 md:group-hover:opacity-100 md:group-[.selected]:opacity-100 hover:bg-[var(--color-surface-3)] hover:text-foreground"
+                    className="kds-tile-options-btn"
                     aria-label={`${menu.menuName} 메뉴 옵션`}
                     aria-expanded={isPopoverOpen}
                     aria-haspopup="menu"
@@ -281,7 +277,7 @@ export function MyTasksPanel({
                   </button>
                   <ActionMenu
                     ariaLabel={`${menu.menuName} 메뉴 옵션`}
-                    className="kds-tile-popover min-w-[152px] overflow-hidden rounded-md border border-border bg-background p-1 shadow-[var(--shadow-floating)]"
+                    className="kds-tile-popover"
                     onClose={() => {
                       setOpenPopoverId(null);
                       setPopoverAnchorEl(null);
@@ -294,7 +290,7 @@ export function MyTasksPanel({
                     }
                   >
                     <button
-                      className="kds-tile-popover-item flex min-h-10 w-full items-center gap-2.5 rounded-sm px-3 text-left text-sm font-medium text-foreground hover:bg-muted"
+                      className="kds-tile-popover-item"
                       role="menuitem"
                       type="button"
                       onClick={() => openEdit(menu)}
@@ -303,7 +299,7 @@ export function MyTasksPanel({
                       수정
                     </button>
                     <button
-                      className="kds-tile-popover-item danger flex min-h-10 w-full items-center gap-2.5 rounded-sm px-3 text-left text-sm font-medium text-[var(--color-danger-text)] hover:bg-[var(--color-danger-bg)]"
+                      className="kds-tile-popover-item danger"
                       role="menuitem"
                       type="button"
                       onClick={() => {
@@ -349,7 +345,7 @@ export function MyTasksPanel({
               {historyRows.map((row, idx) => (
                 <tr
                   key={`${row.orderNumber}-${row.itemId}-${idx}`}
-                  className={row.status === "완료" ? "row-done" : row.delayed ? "row-delayed text-[var(--color-red)]" : ""}
+                  className={row.status === "완료" ? "row-done" : row.delayed ? "row-delayed" : ""}
                 >
                   <td className="kds-table-cell-muted">{row.orderNumber}</td>
                   <td>
@@ -365,7 +361,7 @@ export function MyTasksPanel({
                   <td className="kds-table-cell-muted">{formatHistoryTime(row.timestamp)}</td>
                   <td style={{ textAlign: "center" }}>
                     {row.delayed ? (
-                      <span className="kds-badge red inline-flex items-center rounded-full bg-[var(--color-red-subtle)] px-2 py-0.5 text-[11px] font-semibold text-[var(--color-red)]">지연</span>
+                      <span className="kds-badge red">지연</span>
                     ) : (
                       <span className={`kds-badge${row.status === "완료" ? " dim" : " accent"}`}>{row.status}</span>
                     )}
@@ -401,10 +397,9 @@ export function MyTasksPanel({
               </button>
             </div>
             <div className="kds-modal-body">
-              <div className="kds-settings-field flex flex-col gap-1.5">
-                <label className="kds-settings-label text-xs font-medium text-muted-foreground" htmlFor="menu-name-input">메뉴명</label>
-                <Input
-                  className="h-10"
+              <div className="kds-settings-field">
+                <label className="kds-settings-label" htmlFor="menu-name-input">메뉴명</label>
+                <input
                   id="menu-name-input"
                   type="text"
                   value={menuInput}
@@ -418,22 +413,21 @@ export function MyTasksPanel({
                   autoFocus
                   onKeyDown={(e) => { if (e.key === "Enter") void saveMenu(); }}
                 />
-                {menuError ? <p className="kds-settings-error text-xs text-[var(--color-error-text)]">{menuError}</p> : null}
+                {menuError ? <p className="kds-settings-error">{menuError}</p> : null}
               </div>
             </div>
             <div className="kds-modal-foot">
-              <Button
+              <button
                 className="kds-modal-btn secondary"
                 onClick={() => {
                   setMenuModal(null);
                   setMenuError(null);
                 }}
                 type="button"
-                variant="outline"
               >
                 취소
-              </Button>
-              <Button className="kds-modal-btn primary" disabled={saving || !menuInput.trim()} onClick={() => void saveMenu()} type="button">{saving ? "저장 중…" : "저장"}</Button>
+              </button>
+              <button className="kds-modal-btn primary" disabled={saving || !menuInput.trim()} onClick={() => void saveMenu()} type="button">{saving ? "저장 중…" : "저장"}</button>
             </div>
           </div>
         </div>
@@ -452,8 +446,8 @@ export function MyTasksPanel({
               </p>
             </div>
             <div className="kds-modal-foot">
-              <Button className="kds-modal-btn secondary" onClick={() => setDeleteTarget(null)} type="button" variant="outline">아니오</Button>
-              <Button className="kds-modal-btn danger" disabled={saving} onClick={() => void confirmDelete()} type="button" variant="destructive">{saving ? "삭제 중…" : "예"}</Button>
+              <button className="kds-modal-btn secondary" onClick={() => setDeleteTarget(null)} type="button">아니오</button>
+              <button className="kds-modal-btn danger" disabled={saving} onClick={() => void confirmDelete()} type="button">{saving ? "삭제 중…" : "예"}</button>
             </div>
           </div>
         </div>

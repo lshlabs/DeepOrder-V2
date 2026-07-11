@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ChefHat, Eye, EyeOff } from "lucide-react";
 
-import { Button, Input } from "../components/ui";
 import { API_ORIGIN, ApiError, apiCheckIdentifier, apiLogin, apiRegister } from "../lib/api";
 import type {
   AuthResponse,
@@ -245,61 +244,61 @@ export function AuthPage({
   const showFormView = !showPendingView;
 
   return (
-    <main className="auth-shell grid h-screen grid-cols-1 overflow-hidden lg:grid-cols-[1fr_1fr]">
-      <section className="auth-hero hidden flex-col justify-between border-r border-[var(--color-border)] bg-[var(--color-hero-bg)] px-12 py-10 lg:flex" aria-hidden="true">
-        <div className="auth-hero-top flex flex-col gap-12">
-          <div className="auth-brand flex items-center gap-2.5">
-            <div className="auth-brand-icon flex h-[30px] w-[30px] items-center justify-center rounded-[var(--radius-sm)] bg-[var(--color-accent)] text-white">
+    <main className="auth-shell">
+      <section className="auth-hero" aria-hidden="true">
+        <div className="auth-hero-top">
+          <div className="auth-brand">
+            <div className="auth-brand-icon">
               <ChefHat size={16} aria-hidden="true" />
             </div>
-            <span className="auth-brand-name text-[15px] font-semibold tracking-[-0.2px] text-[var(--color-hero-text)]">DeepOrder KDS</span>
+            <span className="auth-brand-name">DeepOrder KDS</span>
           </div>
 
-          <div className="auth-hero-headline flex flex-col gap-3.5">
-            <h1 className="text-5xl font-bold leading-[1.1] tracking-[-1px] text-[var(--color-hero-text)]">
+          <div className="auth-hero-headline">
+            <h1>
               주방을 더
               <br />
               스마트하게
             </h1>
-            <p className="text-sm leading-[1.65] text-[var(--color-hero-muted)]">실시간 주문 접수부터 AI 분석까지. 매장 운영에 꼭 필요한 것만 담았습니다.</p>
+            <p>실시간 주문 접수부터 AI 분석까지. 매장 운영에 꼭 필요한 것만 담았습니다.</p>
           </div>
         </div>
 
-        <p className="auth-hero-footer text-xs text-[var(--color-hero-muted)]">© 2025 DeepOrder. All rights reserved.</p>
+        <p className="auth-hero-footer">© 2025 DeepOrder. All rights reserved.</p>
       </section>
 
-      <section className="auth-card flex flex-col justify-center overflow-y-auto bg-[var(--color-surface)] px-6 py-10 md:px-8 lg:px-16">
-        <div className="auth-form-wrap relative mx-auto flex w-full max-w-[400px] flex-col gap-6">
+      <section className="auth-card">
+        <div className="auth-form-wrap">
           {showPendingView ? (
-            <div className="auth-view auth-view--visible flex flex-col gap-6" aria-hidden={false}>
-              <div className="pending-head flex flex-col gap-2">
-                <span className="status-badge inline-block w-fit rounded-full border border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.1)] px-2.5 py-[3px] text-[11px] font-semibold uppercase tracking-[0.05em] text-[#fbbf24]">승인 대기</span>
-                <h2 className="mt-1 text-xl font-semibold tracking-[-0.3px] text-[var(--color-text)]">가입 신청 완료</h2>
-                <p className="text-[13px] leading-[1.6] text-[var(--color-text-muted)]">관리자 검토 후 승인되면 로그인할 수 있습니다.</p>
+            <div className="auth-view auth-view--visible" aria-hidden={false}>
+              <div className="pending-head">
+                <span className="status-badge">승인 대기</span>
+                <h2>가입 신청 완료</h2>
+                <p>관리자 검토 후 승인되면 로그인할 수 있습니다.</p>
               </div>
 
-              <div className="pending-summary flex flex-col overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-2)]">
-                <div className="pending-row flex items-center justify-between border-b border-[var(--color-border)] px-[14px] py-[11px]">
-                  <span className="text-xs font-medium text-[var(--color-text-muted)]">매장명</span>
-                  <strong className="text-[13px] font-medium text-[var(--color-text)]">{pendingStore?.storeName ?? "-"}</strong>
+              <div className="pending-summary">
+                <div className="pending-row">
+                  <span>매장명</span>
+                  <strong>{pendingStore?.storeName ?? "-"}</strong>
                 </div>
-                <div className="pending-row flex items-center justify-between px-[14px] py-[11px]">
-                  <span className="text-xs font-medium text-[var(--color-text-muted)]">이름</span>
-                  <strong className="text-[13px] font-medium text-[var(--color-text)]">{pendingUser?.name ?? "-"}</strong>
+                <div className="pending-row">
+                  <span>이름</span>
+                  <strong>{pendingUser?.name ?? "-"}</strong>
                 </div>
               </div>
 
-              <Button className="auth-submit mt-1 h-10 w-full" onClick={handleBack} type="button" variant="outline">
+              <button className="btn-outline auth-submit" onClick={handleBack} type="button">
                 이전으로
-              </Button>
+              </button>
             </div>
           ) : null}
 
           {showFormView ? (
-            <div className="auth-view auth-view--visible flex flex-col gap-6" aria-hidden={false}>
-              <div className="auth-tabs flex gap-[3px] rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-2)] p-[3px]" role="tablist" aria-label="인증 화면 선택">
+            <div className="auth-view auth-view--visible" aria-hidden={false}>
+              <div className="auth-tabs" role="tablist" aria-label="인증 화면 선택">
               <button
-                className={tab === "login" ? "auth-tab active h-8 flex-1 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface-3)] text-[13px] font-semibold text-[var(--color-text)]" : "auth-tab h-8 flex-1 rounded-[var(--radius-sm)] border border-transparent bg-transparent text-[13px] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-subtle)]"}
+                className={tab === "login" ? "auth-tab active" : "auth-tab"}
                 onClick={() => switchTab("login")}
                 role="tab"
                 aria-selected={tab === "login"}
@@ -308,7 +307,7 @@ export function AuthPage({
                 로그인
               </button>
               <button
-                className={tab === "register" ? "auth-tab active h-8 flex-1 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface-3)] text-[13px] font-semibold text-[var(--color-text)]" : "auth-tab h-8 flex-1 rounded-[var(--radius-sm)] border border-transparent bg-transparent text-[13px] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-subtle)]"}
+                className={tab === "register" ? "auth-tab active" : "auth-tab"}
                 onClick={() => switchTab("register")}
                 role="tab"
                 aria-selected={tab === "register"}
@@ -330,10 +329,9 @@ export function AuthPage({
                   aria-hidden={tab !== "login"}
                 >
                 <form className="auth-form" onSubmit={handleLoginSubmit} noValidate>
-                  <div className="field flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-[var(--color-text-subtle)]" htmlFor="login-id">아이디</label>
-                    <Input
-                      className="h-10"
+                  <div className="field">
+                    <label htmlFor="login-id">아이디</label>
+                    <input
                       id="login-id"
                       ref={loginIdRef}
                       autoComplete="username"
@@ -346,11 +344,10 @@ export function AuthPage({
                     />
                   </div>
 
-                  <div className="field flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-[var(--color-text-subtle)]" htmlFor="login-password">비밀번호 / PIN</label>
-                    <div className="field-password relative">
-                      <Input
-                        className="h-10 pr-10"
+                  <div className="field">
+                    <label htmlFor="login-password">비밀번호 / PIN</label>
+                    <div className="field-password">
+                      <input
                         id="login-password"
                         autoComplete="current-password"
                         minLength={4}
@@ -363,32 +360,29 @@ export function AuthPage({
                         placeholder="비밀번호 / PIN"
                         value={loginForm.password}
                       />
-                      <Button
-                        className="field-password-toggle absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 p-0 text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                      <button
+                        className="field-password-toggle"
                         type="button"
                         aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
                         title={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
                         onClick={() => setShowPassword((current) => !current)}
-                        variant="ghost"
                       >
                         {showPassword ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
-                      </Button>
+                      </button>
                     </div>
                   </div>
 
-                  <div className="login-options mt-[-2px] flex gap-[18px]">
-                    <label className="checkbox-label flex cursor-pointer items-center gap-1.5 text-[13px] font-normal text-[var(--color-text-subtle)]">
+                  <div className="login-options">
+                    <label className="checkbox-label">
                       <input
-                        className="h-4 w-4 rounded border-[var(--color-border)]"
                         type="checkbox"
                         checked={rememberLoginId}
                         onChange={(event) => setRememberLoginId(event.target.checked)}
                       />
                       아이디 저장
                     </label>
-                    <label className="checkbox-label flex cursor-pointer items-center gap-1.5 text-[13px] font-normal text-[var(--color-text-subtle)]">
+                    <label className="checkbox-label">
                       <input
-                        className="h-4 w-4 rounded border-[var(--color-border)]"
                         type="checkbox"
                         checked={autoLogin}
                         onChange={(event) => {
@@ -401,9 +395,9 @@ export function AuthPage({
                     </label>
                   </div>
 
-                  <Button className="auth-submit mt-1 h-10 w-full" disabled={submitting} type="submit">
+                  <button className="auth-submit" disabled={submitting} type="submit">
                     {submitting ? "로그인 중…" : "로그인"}
-                  </Button>
+                  </button>
                 </form>
               </div>
 
@@ -412,10 +406,9 @@ export function AuthPage({
                   aria-hidden={tab !== "register"}
                 >
                 <form className="auth-form" onSubmit={handleRegisterSubmit} noValidate>
-                  <div className="field flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-[var(--color-text-subtle)]" htmlFor="reg-name">이름</label>
-                    <Input
-                      className="h-10"
+                  <div className="field">
+                    <label htmlFor="reg-name">이름</label>
+                    <input
                       id="reg-name"
                       name="name"
                       onChange={(event) => setRegisterForm((current) => ({ ...current, name: event.target.value }))}
@@ -425,11 +418,10 @@ export function AuthPage({
                     />
                   </div>
 
-                  <div className="field flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-[var(--color-text-subtle)]" htmlFor="reg-login-id">아이디</label>
-                    <div className="field-inline flex gap-2">
-                      <Input
-                        className="h-10 flex-1"
+                  <div className="field">
+                    <label htmlFor="reg-login-id">아이디</label>
+                    <div className="field-inline">
+                      <input
                         id="reg-login-id"
                         autoComplete="username"
                         name="loginId"
@@ -446,9 +438,9 @@ export function AuthPage({
                         placeholder="아이디"
                         value={registerForm.loginId}
                       />
-                      <Button className="h-10 px-3 text-xs" onClick={() => void handleCheckIdentifier()} type="button" disabled={checkingIdentifier} variant="outline">
+                      <button className="btn-outline" onClick={() => void handleCheckIdentifier()} type="button" disabled={checkingIdentifier}>
                         {checkingIdentifier ? "확인 중…" : "중복확인"}
-                      </Button>
+                      </button>
                     </div>
                   </div>
 
@@ -458,11 +450,10 @@ export function AuthPage({
                     </div>
                   ) : null}
 
-                  <div className="field flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-[var(--color-text-subtle)]" htmlFor="reg-password">비밀번호</label>
-                    <div className="field-password relative">
-                      <Input
-                        className="h-10 pr-10"
+                  <div className="field">
+                    <label htmlFor="reg-password">비밀번호</label>
+                    <div className="field-password">
+                      <input
                         id="reg-password"
                         autoComplete="new-password"
                         minLength={8}
@@ -476,24 +467,22 @@ export function AuthPage({
                         type={showRegisterPassword ? "text" : "password"}
                         value={registerForm.password}
                       />
-                      <Button
-                        className="field-password-toggle absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 p-0 text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                      <button
+                        className="field-password-toggle"
                         type="button"
                         aria-label={showRegisterPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
                         title={showRegisterPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
                         onClick={() => setShowRegisterPassword((current) => !current)}
-                        variant="ghost"
                       >
                         {showRegisterPassword ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
-                      </Button>
+                      </button>
                     </div>
                   </div>
 
-                  <div className="field-row grid grid-cols-1 gap-[11px] md:grid-cols-2">
-                    <div className="field flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-[var(--color-text-subtle)]" htmlFor="reg-store-name">매장명</label>
-                      <Input
-                        className="h-10"
+                  <div className="field-row">
+                    <div className="field">
+                      <label htmlFor="reg-store-name">매장명</label>
+                      <input
                         id="reg-store-name"
                         name="storeName"
                         onChange={(event) =>
@@ -504,10 +493,9 @@ export function AuthPage({
                         value={registerForm.storeName}
                       />
                     </div>
-                    <div className="field flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-[var(--color-text-subtle)]" htmlFor="reg-phone">연락처</label>
-                      <Input
-                        className="h-10"
+                    <div className="field">
+                      <label htmlFor="reg-phone">연락처</label>
+                      <input
                         id="reg-phone"
                         name="storePhone"
                         onChange={(event) =>
@@ -520,11 +508,10 @@ export function AuthPage({
                     </div>
                   </div>
 
-                  <div className="field flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-[var(--color-text-subtle)]" htmlFor="reg-store-address">매장주소</label>
-                    <div className="field-inline flex gap-2">
-                      <Input
-                        className="h-10 flex-1"
+                  <div className="field">
+                    <label htmlFor="reg-store-address">매장주소</label>
+                    <div className="field-inline">
+                      <input
                         id="reg-store-address"
                         name="roadAddress"
                         readOnly
@@ -533,16 +520,15 @@ export function AuthPage({
                           setRegisterForm((current) => ({ ...current, roadAddress: event.target.value }))
                         }
                       />
-                      <Button className="h-10 px-3 text-xs" onClick={handleAddressSearch} type="button" variant="outline">
+                      <button className="btn-outline" onClick={handleAddressSearch} type="button">
                         주소 검색
-                      </Button>
+                      </button>
                     </div>
                   </div>
 
-                  <div className="field flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-[var(--color-text-subtle)]" htmlFor="reg-address-detail">상세주소</label>
-                    <Input
-                      className="h-10"
+                  <div className="field">
+                    <label htmlFor="reg-address-detail">상세주소</label>
+                    <input
                       id="reg-address-detail"
                       name="addressDetail"
                       onChange={(event) =>
@@ -558,9 +544,9 @@ export function AuthPage({
                     </div>
                   ) : null}
 
-                  <Button className="auth-submit mt-1 h-10 w-full" disabled={submitting} type="submit">
+                  <button className="auth-submit" disabled={submitting} type="submit">
                     {submitting ? "신청 중…" : "가입 신청"}
-                  </Button>
+                  </button>
                 </form>
                 </div>
               </div>
