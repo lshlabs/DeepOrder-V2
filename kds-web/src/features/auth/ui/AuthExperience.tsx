@@ -1,4 +1,5 @@
 import { LoadingState } from "@/components/blocks";
+import { Button } from "@/components/ui";
 
 import type {
   AuthPendingInfo,
@@ -16,6 +17,78 @@ type AuthExperienceProps = {
   onLoginSuccess: (response: AuthResponse) => void;
   onRegisterSuccess: (response: RegisterResponse) => void;
   onBackFromPending: () => void;
+};
+
+const TEMP_OWNER_AUTH_RESPONSE: AuthResponse = {
+  accessToken: "temp-owner-access-token",
+  refreshToken: "temp-owner-refresh-token",
+  autoLogin: false,
+  user: {
+    id: 1,
+    loginId: "temp-owner",
+    name: "임시 점주",
+    role: "STORE_OWNER",
+    accountType: "OWNER",
+    approvalStatus: "APPROVED",
+  },
+  store: {
+    id: 1,
+    storeId: "TEMP-OWNER-STORE",
+    storeName: "임시 점주 매장",
+    phone: "01012345678",
+    zipNo: "00000",
+    roadAddress: "서울시 중구 을지로 1",
+    jibunAddress: "서울시 중구 을지로동 1",
+    addressDetail: "101호",
+    approvalStatus: "APPROVED",
+  },
+};
+
+const TEMP_EMPLOYEE_AUTH_RESPONSE: AuthResponse = {
+  accessToken: "temp-employee-access-token",
+  refreshToken: "temp-employee-refresh-token",
+  autoLogin: false,
+  user: {
+    id: 2,
+    loginId: "temp-employee",
+    name: "임시 직원",
+    role: "ADMIN",
+    accountType: "EMPLOYEE",
+    approvalStatus: "APPROVED",
+  },
+  store: {
+    id: 1,
+    storeId: "TEMP-OWNER-STORE",
+    storeName: "임시 점주 매장",
+    phone: "01012345678",
+    zipNo: "00000",
+    roadAddress: "서울시 중구 을지로 1",
+    jibunAddress: "서울시 중구 을지로동 1",
+    addressDetail: "101호",
+    approvalStatus: "APPROVED",
+  },
+};
+
+const TEMP_PENDING_REGISTER_RESPONSE: RegisterResponse = {
+  user: {
+    id: 3,
+    loginId: "temp-pending",
+    name: "임시 가입자",
+    role: "STORE_OWNER",
+    accountType: "OWNER",
+    approvalStatus: "PENDING_APPROVAL",
+  },
+  store: {
+    id: 3,
+    storeId: "TEMP-PENDING-STORE",
+    storeName: "임시 승인대기 매장",
+    phone: "01087654321",
+    zipNo: "00000",
+    roadAddress: "서울시 종로구 종로 1",
+    jibunAddress: "서울시 종로구 종로1가 1",
+    addressDetail: "202호",
+    approvalStatus: "PENDING_APPROVAL",
+  },
 };
 
 export function AuthExperience({
@@ -53,11 +126,32 @@ export function AuthExperience({
 
   return (
     <AuthShell>
-      <AuthForms
-        initialError={bootError}
-        onLoginSuccess={onLoginSuccess}
-        onRegisterSuccess={onRegisterSuccess}
-      />
+      <div className="space-y-4">
+        <AuthForms
+          initialError={bootError}
+          onLoginSuccess={onLoginSuccess}
+          onRegisterSuccess={onRegisterSuccess}
+        />
+
+        {/* TEMP_AUTH_BYPASS_START: v0/디자인 작업용 백엔드 없는 임시 진입 버튼. 필요 없으면 이 블록 전체를 삭제하면 된다. */}
+        <div className="space-y-2 rounded-panel border border-dashed border-border bg-surface-2 p-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Temporary auth bypass
+          </p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <Button size="compact" type="button" variant="outline" onClick={() => onLoginSuccess(TEMP_OWNER_AUTH_RESPONSE)}>
+              점주로 바로 진입
+            </Button>
+            <Button size="compact" type="button" variant="outline" onClick={() => onLoginSuccess(TEMP_EMPLOYEE_AUTH_RESPONSE)}>
+              직원으로 바로 진입
+            </Button>
+            <Button size="compact" type="button" variant="outline" onClick={() => onRegisterSuccess(TEMP_PENDING_REGISTER_RESPONSE)}>
+              승인 대기 보기
+            </Button>
+          </div>
+        </div>
+        {/* TEMP_AUTH_BYPASS_END */}
+      </div>
     </AuthShell>
   );
 }
