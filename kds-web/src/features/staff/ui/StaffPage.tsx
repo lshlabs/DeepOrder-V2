@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MoreVertical, Plus } from "lucide-react";
 
-import { EmptyState, ErrorState, LoadingState, PageHeader, StatusBadge } from "@/components/blocks";
+import { EmptyState, ErrorState, LoadingState, PageHeader } from "@/components/blocks";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -227,7 +227,7 @@ export function StaffPage({ session, onUnauthorized }: StaffPageProps) {
                   <TableHead className="hidden md:table-cell">아이디</TableHead>
                   <TableHead className="text-center">역할</TableHead>
                   <TableHead className="text-center">상태</TableHead>
-                  <TableHead className="w-16 text-right">작업</TableHead>
+                  <TableHead className="w-16 text-right xl:w-48">작업</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -235,7 +235,7 @@ export function StaffPage({ session, onUnauthorized }: StaffPageProps) {
                   <TableRow className={!member.active ? "opacity-[0.45]" : undefined} key={member.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-[11px] font-bold text-white">
+                        <div className="hidden size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-[11px] font-bold text-white md:flex">
                           {member.name.slice(0, 1)}
                         </div>
                         <div className="min-w-0">
@@ -265,30 +265,62 @@ export function StaffPage({ session, onUnauthorized }: StaffPageProps) {
                       </StaffBadge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button aria-label={`${member.name} 작업 메뉴`} size="icon" type="button" variant="ghost">
-                            <MoreVertical aria-hidden="true" className="size-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onSelect={() => openEdit(member)}>정보 수정</DropdownMenuItem>
-                          <DropdownMenuItem disabled={saving} onSelect={() => void reissuePin(member)}>
-                            PIN 재발급
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className={member.active ? "text-destructive focus:bg-destructive/10 focus:text-destructive" : undefined}
+                      <div className="flex items-center justify-end gap-1">
+                        <div className="hidden items-center justify-end gap-1 xl:flex">
+                          <Button
                             disabled={saving}
-                            onSelect={() => {
+                            onClick={() => openEdit(member)}
+                            size="sm"
+                            type="button"
+                            variant="ghost"
+                          >
+                            수정
+                          </Button>
+                          <Button
+                            className={
+                              member.active
+                                ? "text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                : "text-[hsl(var(--success))] hover:bg-[hsl(var(--success))]/10 hover:text-[hsl(var(--success))]"
+                            }
+                            disabled={saving}
+                            onClick={() => {
                               if (member.active) setDeactivateTarget(member);
                               else void toggleActive(member);
                             }}
+                            size="sm"
+                            type="button"
+                            variant="ghost"
                           >
                             {member.active ? "비활성화" : "활성화"}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          </Button>
+                        </div>
+                        <div className="xl:hidden">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button aria-label={`${member.name} 작업 메뉴`} size="icon" type="button" variant="ghost">
+                                <MoreVertical aria-hidden="true" className="size-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onSelect={() => openEdit(member)}>정보 수정</DropdownMenuItem>
+                              <DropdownMenuItem disabled={saving} onSelect={() => void reissuePin(member)}>
+                                PIN 재발급
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className={member.active ? "text-destructive focus:bg-destructive/10 focus:text-destructive" : undefined}
+                                disabled={saving}
+                                onSelect={() => {
+                                  if (member.active) setDeactivateTarget(member);
+                                  else void toggleActive(member);
+                                }}
+                              >
+                                {member.active ? "비활성화" : "활성화"}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -444,8 +476,8 @@ type StaffBadgeProps = {
 function StaffBadge({ children, variant }: StaffBadgeProps) {
   const base = "inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold";
   const variants: Record<StaffBadgeVariant, string> = {
-    accent: "bg-[rgba(232,101,10,0.10)] text-primary",
-    green: "bg-[rgba(22,163,74,0.10)] text-[#16a34a]",
+    accent: "bg-[hsl(var(--primary-soft))] text-primary",
+    green: "bg-[hsl(var(--success-soft))] text-[hsl(var(--success))]",
     dim: "bg-[hsl(var(--surface-3))] text-muted-foreground",
     neutral: "bg-muted text-muted-foreground",
   };
@@ -464,18 +496,19 @@ function SegmentedControl({ options, value, onChange }: SegmentedControlProps) {
   return (
     <div className="flex gap-0.5 rounded-[var(--radius)] border border-border bg-muted p-0.5">
       {options.map((opt) => (
-        <button
-          key={opt.value}
-          className={`flex-1 rounded-[calc(var(--radius)-2px)] px-3 py-1 text-xs font-medium transition-all ${
+        <Button
+          className={`h-auto flex-1 rounded-[calc(var(--radius)-2px)] px-3 py-1 text-xs font-medium transition-all ${
             value === opt.value
-              ? "bg-card text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-card text-foreground shadow-sm hover:bg-card"
+              : "bg-transparent text-muted-foreground hover:bg-transparent hover:text-foreground"
           }`}
+          key={opt.value}
           onClick={() => onChange(opt.value)}
           type="button"
+          variant="ghost"
         >
           {opt.label}
-        </button>
+        </Button>
       ))}
     </div>
   );
