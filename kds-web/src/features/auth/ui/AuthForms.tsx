@@ -19,7 +19,7 @@ type AuthFormsProps = {
 
 export function AuthForms({ initialError, onLoginSuccess, onRegisterSuccess }: AuthFormsProps) {
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {initialError ? (
         <Alert className="rounded-panel" variant="destructive">
           <AlertDescription>{initialError}</AlertDescription>

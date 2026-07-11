@@ -158,14 +158,14 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
   const addressHintId = addressHint ? "address-hint" : undefined;
 
   return (
-    <form className="space-y-3.5" onSubmit={handleSubmit} noValidate>
+    <form className="flex flex-col gap-[11px]" onSubmit={handleSubmit} noValidate>
       {errorMessage ? (
         <Alert className="rounded-panel" id={errorId} variant="destructive">
           <AlertDescription>{errorMessage}</AlertDescription>
         </Alert>
       ) : null}
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-1.5">
         <Label className="text-xs font-medium text-muted-foreground" htmlFor="registration-name">이름</Label>
         <Input
           id="registration-name"
@@ -179,7 +179,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-1.5">
         <Label className="text-xs font-medium text-muted-foreground" htmlFor="registration-id">아이디</Label>
         <div className="flex gap-2">
           <Input
@@ -229,7 +229,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         ) : null}
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-1.5">
         <Label className="text-xs font-medium text-muted-foreground" htmlFor="registration-password">비밀번호</Label>
         <PasswordField
           id="registration-password"
@@ -247,7 +247,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-        <div className="space-y-2">
+        <div className="flex flex-col gap-1.5">
           <Label className="text-xs font-medium text-muted-foreground" htmlFor="store-name">매장명</Label>
           <Input
             id="store-name"
@@ -260,7 +260,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
             onChange={(event) => setForm((current) => ({ ...current, storeName: event.target.value }))}
           />
         </div>
-        <div className="space-y-2">
+        <div className="flex flex-col gap-1.5">
           <Label className="text-xs font-medium text-muted-foreground" htmlFor="store-phone">연락처</Label>
           <Input
             id="store-phone"
@@ -276,7 +276,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-1.5">
         <Label className="text-xs font-medium text-muted-foreground" htmlFor="store-address">매장주소</Label>
         <div className="flex gap-2">
           <Input
@@ -301,7 +301,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         ) : null}
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-1.5">
         <Label className="text-xs font-medium text-muted-foreground" htmlFor="address-detail">상세주소</Label>
         <Input
           id="address-detail"

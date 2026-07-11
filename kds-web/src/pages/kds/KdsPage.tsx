@@ -24,7 +24,7 @@ export function KdsPage({ session, onLogout, onUnauthorized }: KdsPageProps) {
       topbar={<KdsWorkspaceTopbar workspace={workspace} />}
     >
       {workspace.orders.counts.CANCELLED > 0 ? (
-        <div className="border-b border-warning/30 bg-warning/10 px-4 py-2 text-xs font-medium text-warning">
+        <div className="border-b border-warning/30 bg-warning/10 px-4 py-[7px] text-xs font-medium text-warning">
           취소 주문 {workspace.orders.counts.CANCELLED}건은 보드에서 제외되어 집계로만 관리됩니다.
         </div>
       ) : null}

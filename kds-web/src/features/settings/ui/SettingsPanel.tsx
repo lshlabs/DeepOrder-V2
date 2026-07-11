@@ -1,6 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 
@@ -45,19 +43,12 @@ export function SettingsPanel({
           description="주문 도착 시 재생할 사운드입니다."
           label="알림 사운드"
         >
-          <RadioGroup
-            className="flex flex-wrap gap-2"
+          <SegmentedControl
             disabled={disabled || !settings.notificationsEnabled}
-            onValueChange={(value) => onUpdate({ sound: value as SoundOption })}
+            onChange={(value) => onUpdate({ sound: value as SoundOption })}
+            options={SOUND_OPTIONS}
             value={settings.sound}
-          >
-            {SOUND_OPTIONS.map((option) => (
-              <div className="flex items-center gap-2" key={option.value}>
-                <RadioGroupItem id={`sound-${option.value}`} value={option.value} />
-                <Label htmlFor={`sound-${option.value}`}>{option.label}</Label>
-              </div>
-            ))}
-          </RadioGroup>
+          />
         </SettingsRow>
       </SettingsGroup>
 
@@ -136,9 +127,13 @@ type SettingsGroupProps = {
 
 function SettingsGroup({ children, title }: SettingsGroupProps) {
   return (
-    <section aria-labelledby={`settings-${title}`} className="space-y-2">
-      <h2 className="text-sm font-semibold" id={`settings-${title}`}>{title}</h2>
-      <div className="rounded-lg border bg-card px-4">{children}</div>
+    <section aria-labelledby={`settings-${title}`}>
+      <div className="flex items-center border-b border-border pb-2 pt-3">
+        <span className="text-[10px] font-bold uppercase tracking-[0.07em] text-muted-foreground" id={`settings-${title}`}>
+          {title}
+        </span>
+      </div>
+      <div>{children}</div>
     </section>
   );
 }
@@ -153,14 +148,45 @@ type SettingsRowProps = {
 function SettingsRow({ children, description, label, vertical = false }: SettingsRowProps) {
   return (
     <>
-      <div className={vertical ? "space-y-4 py-4" : "flex items-center justify-between gap-4 py-4"}>
+      <div className={vertical ? "flex flex-col gap-3 py-[13px]" : "flex items-center justify-between gap-4 py-[13px]"}>
         <div className="min-w-0">
-          <p className="text-sm font-medium">{label}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+          <p className="text-[13px] font-medium text-foreground">{label}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
         </div>
-        <div className={vertical ? "max-w-md" : "shrink-0"}>{children}</div>
+        <div className={vertical ? "" : "shrink-0"}>{children}</div>
       </div>
       <Separator className="last:hidden" />
     </>
+  );
+}
+
+type SegmentedOption = { value: string; label: string };
+
+type SegmentedControlProps = {
+  options: SegmentedOption[];
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+};
+
+function SegmentedControl({ options, value, onChange, disabled = false }: SegmentedControlProps) {
+  return (
+    <div className={`flex gap-0.5 rounded-[var(--radius)] border border-border bg-muted p-0.5 ${disabled ? "cursor-not-allowed opacity-35" : ""}`}>
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          className={`rounded-[calc(var(--radius)-2px)] px-2.5 py-[3px] text-xs font-medium transition-all ${
+            value === opt.value
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+          disabled={disabled}
+          onClick={() => onChange(opt.value)}
+          type="button"
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
   );
 }
