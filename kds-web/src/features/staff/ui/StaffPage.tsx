@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MoreVertical, Plus } from "lucide-react";
 
-import { EmptyState, ErrorState, LoadingState, PageHeader, StatusBadge } from "@/components/blocks";
+import { EmptyState, ErrorState, LoadingState } from "@/components/blocks";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -189,16 +189,22 @@ export function StaffPage({ session, onUnauthorized }: StaffPageProps) {
   return (
     <main className="min-h-0 flex-1 overflow-y-auto p-4 md:p-6">
       <div className="mx-auto max-w-6xl space-y-6">
-        <PageHeader
-          actions={
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 space-y-0.5">
+            <h1 className="text-[17px] font-bold leading-tight tracking-[-0.3px] text-foreground">
+              직원 관리
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              {`총 ${staffList.length}명 · 활성 ${activeCount}명`}
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-1.5">
             <Button disabled={saving} onClick={openAdd} type="button">
               <Plus aria-hidden="true" className="size-4" />
               직원 추가
             </Button>
-          }
-          description={`총 ${staffList.length}명 · 활성 ${activeCount}명`}
-          title="직원 관리"
-        />
+          </div>
+        </header>
 
         {error && !editor ? (
           <ErrorState
@@ -219,15 +225,15 @@ export function StaffPage({ session, onUnauthorized }: StaffPageProps) {
             title="등록된 직원이 없습니다"
           />
         ) : (
-          <div className="overflow-hidden rounded-lg border bg-card">
+          <div className="overflow-hidden rounded-lg border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-52">직원</TableHead>
+                  <TableHead className="min-w-52">이름</TableHead>
                   <TableHead className="hidden md:table-cell">아이디</TableHead>
                   <TableHead className="text-center">역할</TableHead>
                   <TableHead className="text-center">상태</TableHead>
-                  <TableHead className="w-16 text-right">작업</TableHead>
+                  <TableHead className="w-16 text-right xl:w-44">작업</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -265,30 +271,60 @@ export function StaffPage({ session, onUnauthorized }: StaffPageProps) {
                       </StaffBadge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button aria-label={`${member.name} 작업 메뉴`} size="icon" type="button" variant="ghost">
-                            <MoreVertical aria-hidden="true" className="size-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onSelect={() => openEdit(member)}>정보 수정</DropdownMenuItem>
-                          <DropdownMenuItem disabled={saving} onSelect={() => void reissuePin(member)}>
-                            PIN 재발급
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className={member.active ? "text-destructive focus:bg-destructive/10 focus:text-destructive" : undefined}
-                            disabled={saving}
-                            onSelect={() => {
-                              if (member.active) setDeactivateTarget(member);
-                              else void toggleActive(member);
-                            }}
-                          >
-                            {member.active ? "비활성화" : "활성화"}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {/* Inline actions — visible on xl+ (≥1280px), matching legacy behavior */}
+                      <div className="hidden items-center justify-end gap-1 xl:flex">
+                        <Button
+                          disabled={saving}
+                          onClick={() => openEdit(member)}
+                          size="sm"
+                          type="button"
+                          variant="ghost"
+                        >
+                          수정
+                        </Button>
+                        <Button
+                          className={member.active
+                            ? "text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            : "text-[#16a34a] hover:bg-[rgba(22,163,74,0.10)] hover:text-[#16a34a]"}
+                          disabled={saving}
+                          onClick={() => {
+                            if (member.active) setDeactivateTarget(member);
+                            else void toggleActive(member);
+                          }}
+                          size="sm"
+                          type="button"
+                          variant="ghost"
+                        >
+                          {member.active ? "비활성화" : "활성화"}
+                        </Button>
+                      </div>
+                      {/* Dropdown — visible below xl */}
+                      <div className="xl:hidden">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button aria-label={`${member.name} 작업 메뉴`} size="icon" type="button" variant="ghost">
+                              <MoreVertical aria-hidden="true" className="size-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onSelect={() => openEdit(member)}>정보 수정</DropdownMenuItem>
+                            <DropdownMenuItem disabled={saving} onSelect={() => void reissuePin(member)}>
+                              PIN 재발급
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className={member.active ? "text-destructive focus:bg-destructive/10 focus:text-destructive" : undefined}
+                              disabled={saving}
+                              onSelect={() => {
+                                if (member.active) setDeactivateTarget(member);
+                                else void toggleActive(member);
+                              }}
+                            >
+                              {member.active ? "비활성화" : "활성화"}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
