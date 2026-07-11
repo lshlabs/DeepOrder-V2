@@ -232,10 +232,10 @@ export function StaffPage({ session, onUnauthorized }: StaffPageProps) {
               </TableHeader>
               <TableBody>
                 {staffList.map((member) => (
-                  <TableRow className={!member.active ? "opacity-60" : undefined} key={member.id}>
+                  <TableRow className={!member.active ? "opacity-[0.45]" : undefined} key={member.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                        <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-[11px] font-bold text-white">
                           {member.name.slice(0, 1)}
                         </div>
                         <div className="min-w-0">
@@ -255,14 +255,14 @@ export function StaffPage({ session, onUnauthorized }: StaffPageProps) {
                       {member.loginId}
                     </TableCell>
                     <TableCell className="text-center">
-                      <StatusBadge tone={member.positionLabel === "매니저" ? "info" : "neutral"}>
+                      <StaffBadge variant={member.positionLabel === "매니저" ? "accent" : "neutral"}>
                         {member.positionLabel ?? "직원"}
-                      </StatusBadge>
+                      </StaffBadge>
                     </TableCell>
                     <TableCell className="text-center">
-                      <StatusBadge tone={member.active ? "success" : "neutral"}>
+                      <StaffBadge variant={member.active ? "green" : "dim"}>
                         {member.active ? "활성" : "비활성"}
-                      </StatusBadge>
+                      </StaffBadge>
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -316,14 +316,14 @@ export function StaffPage({ session, onUnauthorized }: StaffPageProps) {
           </DialogHeader>
 
           {editor?.type === "created" ? (
-            <div className="rounded-lg border bg-muted/50 p-4 text-center">
-              <p className="text-sm text-muted-foreground">{editor.member.name} 임시 PIN</p>
-              <p className="mt-2 text-3xl font-bold tracking-[0.35em] text-primary">
+            <div className="rounded-lg border border-[rgba(232,101,10,0.2)] bg-[rgba(232,101,10,0.08)] p-3 text-center">
+              <p className="text-xs text-muted-foreground">발급된 PIN은 이 창에서만 표시됩니다.</p>
+              <p className="mt-2 text-lg font-extrabold tracking-[0.12em] text-primary">
                 {editor.temporaryPin}
               </p>
             </div>
           ) : (
-            <div className="space-y-4 py-2">
+            <div className="flex flex-col gap-4 py-2">
               <Field
                 id="staff-name"
                 label="이름"
@@ -336,12 +336,42 @@ export function StaffPage({ session, onUnauthorized }: StaffPageProps) {
                 onChange={(value) => setForm((previous) => ({ ...previous, loginId: value }))}
                 value={form.loginId}
               />
-              <Field
-                id="staff-role"
-                label="역할"
-                onChange={(value) => setForm((previous) => ({ ...previous, role: value }))}
-                value={form.role}
-              />
+              <div className="flex flex-col gap-1.5">
+                <Label>역할</Label>
+                <SegmentedControl
+                  onChange={(value) => setForm((previous) => ({ ...previous, role: value }))}
+                  options={[
+                    { label: "직원", value: "직원" },
+                    { label: "매니저", value: "매니저" },
+                  ]}
+                  value={form.role}
+                />
+              </div>
+              {editor?.type === "edit" ? (
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs text-muted-foreground">재발급된 PIN은 이 창에서만 표시됩니다.</p>
+                    <Button
+                      disabled={saving}
+                      onClick={() => void reissuePin(editor.member)}
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      PIN 재발급
+                    </Button>
+                  </div>
+                  {revealedPins[editor.member.id] ? (
+                    <div className="rounded-lg border border-[rgba(232,101,10,0.2)] bg-[rgba(232,101,10,0.08)] p-3 text-center" role="status">
+                      <p className="text-lg font-extrabold tracking-[0.12em] text-primary">
+                        {revealedPins[editor.member.id]}
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">추가 후 4자리 PIN이 자동 발급됩니다.</p>
+              )}
               {error ? <p className="text-sm text-destructive" role="alert">{error}</p> : null}
             </div>
           )}
@@ -397,9 +427,56 @@ type FieldProps = {
 
 function Field({ id, label, value, onChange }: FieldProps) {
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-1.5">
       <Label htmlFor={id}>{label}</Label>
       <Input id={id} onChange={(event) => onChange(event.target.value)} value={value} />
+    </div>
+  );
+}
+
+type StaffBadgeVariant = "accent" | "green" | "dim" | "neutral";
+
+type StaffBadgeProps = {
+  children: React.ReactNode;
+  variant: StaffBadgeVariant;
+};
+
+function StaffBadge({ children, variant }: StaffBadgeProps) {
+  const base = "inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold";
+  const variants: Record<StaffBadgeVariant, string> = {
+    accent: "bg-[rgba(232,101,10,0.10)] text-primary",
+    green: "bg-[rgba(22,163,74,0.10)] text-[#16a34a]",
+    dim: "bg-[hsl(var(--surface-3))] text-muted-foreground",
+    neutral: "bg-muted text-muted-foreground",
+  };
+  return <span className={`${base} ${variants[variant]}`}>{children}</span>;
+}
+
+type SegmentedControlOption = { label: string; value: string };
+
+type SegmentedControlProps = {
+  options: SegmentedControlOption[];
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function SegmentedControl({ options, value, onChange }: SegmentedControlProps) {
+  return (
+    <div className="flex gap-0.5 rounded-[var(--radius)] border border-border bg-muted p-0.5">
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          className={`flex-1 rounded-[calc(var(--radius)-2px)] px-3 py-1 text-xs font-medium transition-all ${
+            value === opt.value
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+          onClick={() => onChange(opt.value)}
+          type="button"
+        >
+          {opt.label}
+        </button>
+      ))}
     </div>
   );
 }
